@@ -1,11 +1,11 @@
 package cz.benes.controllers;
 
-import cz.benes.beans.DAODochazka;
-import cz.benes.beans.InOut_enum;
-import cz.benes.beans.DAOZamestnanec;
+import cz.benes.domain.AttendanceRecord;
+import cz.benes.domain.RecordType;
+import cz.benes.domain.Employee;
 import cz.benes.connection.DBConnection;
-import cz.benes.managers.db.Dochazka;
-import cz.benes.managers.db.Zamestnanci;
+import cz.benes.managers.db.AttendanceDAO;
+import cz.benes.managers.db.EmployeesDAO;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -54,19 +54,19 @@ public class FXMLAdminProhlizeniController implements Initializable {
     private TextField mesicTextField;
     
     @FXML
-    private TableColumn<DAODochazka, String> dateColumn;
+    private TableColumn<AttendanceRecord, String> dateColumn;
     
     @FXML
-    private TableColumn<DAODochazka, String> timeColumn;
+    private TableColumn<AttendanceRecord, String> timeColumn;
      
     @FXML
-    private TableColumn<DAODochazka, String> in_outColumn;
+    private TableColumn<AttendanceRecord, String> in_outColumn;
     
     @FXML
-    private ListView<DAOZamestnanec> zamestnanciListView;
+    private ListView<Employee> zamestnanciListView;
     
     @FXML
-    private TableView<DAODochazka> tableView;
+    private TableView<AttendanceRecord> tableView;
     
     @FXML
     private Label infoLabel;
@@ -76,18 +76,18 @@ public class FXMLAdminProhlizeniController implements Initializable {
     
     private static Connection spojeni;
     
-    private ObservableList<DAOZamestnanec> zamestnanciObservable = FXCollections.observableArrayList();
+    private ObservableList<Employee> zamestnanciObservable = FXCollections.observableArrayList();
     
-    private ObservableList<DAODochazka> dochazkaObservable = FXCollections.observableArrayList();
+    private ObservableList<AttendanceRecord> dochazkaObservable = FXCollections.observableArrayList();
     
-    private DAOZamestnanec selectedEmploye;
+    private Employee selectedEmploye;
     
     private TableManager tableManager = new TableManager();
 
     
     @FXML
     void handleSmazButton (ActionEvent event) throws IOException{
-        DAODochazka selectedRow = tableView.getSelectionModel().getSelectedItem();
+        AttendanceRecord selectedRow = tableView.getSelectionModel().getSelectedItem();
         if (selectedRow != null){
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Mazání záznamu");
@@ -138,11 +138,11 @@ public class FXMLAdminProhlizeniController implements Initializable {
         LocalTimePicker timePicker = new LocalTimePicker();
         timePicker.setPrefWidth(120);
         
-        ObservableList<String> in_out = FXCollections.observableArrayList(InOut_enum.IN , InOut_enum.OUT ,InOut_enum.DOV , InOut_enum.NEM, InOut_enum.PAR ); 
+        ObservableList<String> in_out = FXCollections.observableArrayList(RecordType.IN , RecordType.OUT , RecordType.DOV , RecordType.NEM, RecordType.PAR );
         ChoiceBox choiceBox = new ChoiceBox(in_out);
         choiceBox.getSelectionModel().selectFirst();
         choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals(InOut_enum.DOV) || newValue.equals(InOut_enum.NEM) || newValue.equals(InOut_enum.PAR)){
+            if (newValue.equals(RecordType.DOV) || newValue.equals(RecordType.NEM) || newValue.equals(RecordType.PAR)){
                 timePicker.setDisable(true);
                 timePicker.setLocalTime(LocalTime.MIN);
             } else {
@@ -156,9 +156,9 @@ public class FXMLAdminProhlizeniController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
        
         if (result.get() == ButtonType.OK){
-            if (Dochazka.insert(selectedEmploye, datePicker.getValue().toString(), timePicker.getLocalTime().toString(), (String) choiceBox.getValue()) != 0){
+            if (AttendanceDAO.insert(selectedEmploye, datePicker.getValue().toString(), timePicker.getLocalTime().toString(), (String) choiceBox.getValue()) != 0){
                 infoLabel.setText("Zápis proběhl úspěšně.");
-                dochazkaObservable.add(new DAODochazka(datePicker.getValue().toString(), 
+                dochazkaObservable.add(new AttendanceRecord(datePicker.getValue().toString(),
                                          timePicker.getLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")), 
                                          choiceBox.getValue().toString()));
             } else {
@@ -168,7 +168,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
     }
     
     @FXML
-    void handleDatumEditCommit (TableColumn.CellEditEvent<DAODochazka, String> event) throws SQLException {
+    void handleDatumEditCommit (TableColumn.CellEditEvent<AttendanceRecord, String> event) throws SQLException {
         boolean leapYear = Year.of(Integer.parseInt(event.getNewValue().substring(0, 4))).isLeap();
         int denMesice = Integer.parseInt(event.getNewValue().substring(8));
         int delkaMesice = Month.of(Integer.parseInt(event.getNewValue().substring(5,7))).length(leapYear);
@@ -186,7 +186,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
 
     
     @FXML
-    void handleCasEditCommit (TableColumn.CellEditEvent<DAODochazka, String> event) throws SQLException {
+    void handleCasEditCommit (TableColumn.CellEditEvent<AttendanceRecord, String> event) throws SQLException {
         if (event.getNewValue().matches("([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]")){
             if (tableManager.updateTime(event) != 0){
                 infoLabel.setText("Údaj byl úspěšně přepsán.");
@@ -204,41 +204,41 @@ public class FXMLAdminProhlizeniController implements Initializable {
         mesicTextField.setText(String.valueOf(LocalDate.now().getMonthValue()));
         
         // vypíše zaměstnance z databáze
-        zamestnanciObservable.addAll(Zamestnanci.getAll());
+        zamestnanciObservable.addAll(EmployeesDAO.getAll());
         zamestnanciListView.setItems(zamestnanciObservable);
         
         // umožní editovat sloupce
-        dateColumn.setCellFactory(TextFieldTableCell.<DAODochazka>forTableColumn());
-        timeColumn.setCellFactory(TextFieldTableCell.<DAODochazka>forTableColumn());
+        dateColumn.setCellFactory(TextFieldTableCell.<AttendanceRecord>forTableColumn());
+        timeColumn.setCellFactory(TextFieldTableCell.<AttendanceRecord>forTableColumn());
         
         // vyplní tableview
-        dateColumn.setCellValueFactory(new PropertyValueFactory<DAODochazka,String>("date"));   
-        timeColumn.setCellValueFactory(new PropertyValueFactory<DAODochazka,String>("time"));
-        in_outColumn.setCellValueFactory(new PropertyValueFactory<DAODochazka,String>("in_out"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord,String>("date"));
+        timeColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord,String>("time"));
+        in_outColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord,String>("in_out"));
         
         // aktualizace při označení jiného uživatele
         zamestnanciListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             selectedEmploye = newValue;
-            dochazkaObservable.setAll(Dochazka.getByLoginAndDate(newValue, mesicTextField.getText(), rokTextField.getText()));
+            dochazkaObservable.setAll(AttendanceDAO.getByLoginAndDate(newValue, mesicTextField.getText(), rokTextField.getText()));
             tableView.setItems(dochazkaObservable);
             pridejButton.setDisable(false);
         });
         
         // aktualizace údajů při změně roku
         rokTextField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            dochazkaObservable.setAll(Dochazka.getByLoginAndDate(selectedEmploye, mesicTextField.getText(), newValue));
+            dochazkaObservable.setAll(AttendanceDAO.getByLoginAndDate(selectedEmploye, mesicTextField.getText(), newValue));
             tableView.setItems(dochazkaObservable);
         });
         
         // aktualizace údajů při změně měsíce
         mesicTextField.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> { 
-            dochazkaObservable.setAll(Dochazka.getByLoginAndDate(selectedEmploye, newValue, rokTextField.getText()));
+            dochazkaObservable.setAll(AttendanceDAO.getByLoginAndDate(selectedEmploye, newValue, rokTextField.getText()));
             tableView.setItems(dochazkaObservable);
         });
     }
     
     class TableManager {
-        public int delete(DAODochazka selectedRow) {
+        public int delete(AttendanceRecord selectedRow) {
             int smazano = 0;
             try {
                 PreparedStatement dotaz = spojeni.prepareStatement("DELETE FROM dochazka WHERE login_id=? AND date=? AND time=?");
@@ -252,7 +252,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
             return smazano;
         }   
         
-        public int updateDate(TableColumn.CellEditEvent<DAODochazka, String> event) {
+        public int updateDate(TableColumn.CellEditEvent<AttendanceRecord, String> event) {
             int upraveno = 0;
             try {
                 PreparedStatement dotaz = spojeni.prepareStatement("UPDATE dochazka SET date=? WHERE jmeno=? AND date=? AND time=?");
@@ -267,7 +267,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
             return upraveno;
         }
         
-        public int updateTime(TableColumn.CellEditEvent<DAODochazka, String> event) {
+        public int updateTime(TableColumn.CellEditEvent<AttendanceRecord, String> event) {
             int upraveno = 0;
             try {
                 PreparedStatement dotaz = spojeni.prepareStatement("UPDATE dochazka SET time=? WHERE jmeno=? AND date=? AND time=?");

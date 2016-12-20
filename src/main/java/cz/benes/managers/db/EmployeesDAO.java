@@ -1,6 +1,6 @@
 package cz.benes.managers.db;
 
-import cz.benes.beans.DAOZamestnanec;
+import cz.benes.domain.Employee;
 import cz.benes.connection.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,20 +9,20 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Zamestnanci {
+public class EmployeesDAO {
     
     static {
         spojeni = DBConnection.getConnection();
     }
     private static final Connection spojeni;
     
-    public static List<DAOZamestnanec> getAll(){
-        List<DAOZamestnanec> seznam = new ArrayList<>();
+    public static List<Employee> getAll(){
+        List<Employee> seznam = new ArrayList<>();
         try {
             PreparedStatement dotaz = spojeni.prepareStatement("SELECT * FROM zamestnanci");
             ResultSet vysledek = dotaz.executeQuery();
             while (vysledek.next()){
-                seznam.add(new DAOZamestnanec(vysledek.getString("login_id"), 
+                seznam.add(new Employee(vysledek.getString("login_id"),
                                               vysledek.getString("jmeno"), 
                                               vysledek.getString("heslo"), 
                                               vysledek.getString("uvazek"), 
@@ -34,14 +34,14 @@ public class Zamestnanci {
         return seznam;
     }
     
-    public static DAOZamestnanec getByID(String login_id) {
-        DAOZamestnanec zamestnanec = null;
+    public static Employee getByID(String login_id) {
+        Employee zamestnanec = null;
         try {
             PreparedStatement dotazKontrola = spojeni.prepareStatement("SELECT * FROM zamestnanci WHERE login_id =?");
             dotazKontrola.setString(1, login_id);
             ResultSet vysledky = dotazKontrola.executeQuery();
             if (vysledky.next()) {   
-                zamestnanec = new DAOZamestnanec(vysledky.getString("login_id"), 
+                zamestnanec = new Employee(vysledky.getString("login_id"),
                                                  vysledky.getString("jmeno"), 
                                                  vysledky.getString("heslo"), 
                                                  vysledky.getString("uvazek"), 
@@ -65,7 +65,7 @@ public class Zamestnanci {
         return smazano;
     }
     
-    public static int insert(DAOZamestnanec zamestnanec) {
+    public static int insert(Employee zamestnanec) {
         int smazano = 0;
         try {
             PreparedStatement dotazPridat = spojeni.prepareStatement("INSERT INTO zamestnanci (jmeno, login_id, heslo, prava, uvazek) VALUES (?, ?, ?, ?, ?)");
@@ -81,7 +81,7 @@ public class Zamestnanci {
         return smazano;
     } 
     
-    public static int update(DAOZamestnanec zamestnanec) {
+    public static int update(Employee zamestnanec) {
         int updated = 0;
         try {
             PreparedStatement dotaz = spojeni.prepareStatement("UPDATE zamestnanci SET jmeno=?, heslo=?, prava=?, uvazek=? WHERE login_id = ?");

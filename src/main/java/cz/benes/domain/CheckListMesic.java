@@ -1,34 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package cz.benes.beans;
+package cz.benes.domain;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-/**
- *
- * @author PB
- */
-
-// beana pro zadání nemocenské, dovolené, paragrafu
-public class CheckListDen {
-
+public class CheckListMesic {
+    
     private LocalDate localDate;
     
     private final BooleanProperty on = new SimpleBooleanProperty();
-    
-    
     
     public final BooleanProperty onProperty() {
         return this.on;
     }
     
-    public CheckListDen(LocalDate localDate, boolean on) {
+    public CheckListMesic(LocalDate localDate, boolean on) {
         this.localDate = localDate;
         setOn(on);
     }
@@ -44,15 +31,13 @@ public class CheckListDen {
     public void setLocalDate(LocalDate localDate) {
         this.localDate = localDate;
     }
-    
-    
-    
+
+    public CheckListMesic() {
+    }
     
     @Override
     public String toString() {
-        return localDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd EE"));
+        return localDate.format(DateTimeFormatter.ofPattern("MMM"));
     }
     
-    
-
 }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.benes.beans;
+package cz.benes.domain;
 
 /**
  *
@@ -11,7 +11,7 @@ package cz.benes.beans;
  */
 
 // beana pro generování přehledu
-public class JasperRadek {
+public class JasperRow {
     private String day;
     private String prichod;
     private String odchod;
@@ -68,7 +68,7 @@ public class JasperRadek {
         this.poznamka = poznamka;
     }
     
-    public JasperRadek(String day, String prichod, String odchod, String pauza, String odpracovano, String poznamka) {
+    public JasperRow(String day, String prichod, String odchod, String pauza, String odpracovano, String poznamka) {
         this.day = day;
         this.prichod = prichod;
         this.odchod = odchod;
@@ -77,7 +77,7 @@ public class JasperRadek {
         this.poznamka = poznamka;
     }
 
-    public JasperRadek(String day, String poznamka) {
+    public JasperRow(String day, String poznamka) {
         this.day = day;
         this.poznamka = poznamka;
     }

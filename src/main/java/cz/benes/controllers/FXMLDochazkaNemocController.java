@@ -1,10 +1,10 @@
 package cz.benes.controllers;
 
-import cz.benes.beans.CheckListDen;
-import cz.benes.beans.DAODochazka;
-import cz.benes.beans.InOut_enum;
-import cz.benes.managers.db.Dochazka;
-import cz.benes.managers.db.Svatky;
+import cz.benes.domain.CheckListDen;
+import cz.benes.domain.AttendanceRecord;
+import cz.benes.domain.RecordType;
+import cz.benes.managers.db.AttendanceDAO;
+import cz.benes.managers.db.HolidaysDAO;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,10 +36,10 @@ public class FXMLDochazkaNemocController implements Initializable {
 
     @FXML
     void handleOKButton(ActionEvent event) {           
-        if (Dochazka.deleteWithCondition(InOut_enum.NEM)){
+        if (AttendanceDAO.deleteWithCondition(RecordType.NEM)){
             ObservableList<CheckListDen> vyber = checkList.getCheckModel().getCheckedItems();
             for (CheckListDen d : vyber){
-                Dochazka.insert(null, d.getLocalDate().toString(), null, InOut_enum.NEM);
+                AttendanceDAO.insert(null, d.getLocalDate().toString(), null, RecordType.NEM);
             }
             ((Node)(event.getSource())).getScene().getWindow().hide();         
         }
@@ -52,10 +52,10 @@ public class FXMLDochazkaNemocController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        List<DAODochazka> nem_tentoMesic = Dochazka.getThisMonthWithCondition(InOut_enum.NEM);
+        List<AttendanceRecord> nem_tentoMesic = AttendanceDAO.getThisMonthWithCondition(RecordType.NEM);
         nem_tentoMesic.forEach(e -> nemoc.add(LocalDate.parse(e.getDate())));
         
-        List<DAODochazka> dov_par_tentoMesic = Dochazka.getThisMonthWithCondition(InOut_enum.DOV, InOut_enum.PAR);
+        List<AttendanceRecord> dov_par_tentoMesic = AttendanceDAO.getThisMonthWithCondition(RecordType.DOV, RecordType.PAR);
         dov_par_tentoMesic.forEach(e -> obsazeno.add(LocalDate.parse(e.getDate())));
         
         int pocetDniMesice = LocalDate.now().getMonth().length(LocalDate.now().isLeapYear());
@@ -82,7 +82,7 @@ public class FXMLDochazkaNemocController implements Initializable {
                                 else checkList.getCheckModel().clearCheck(item);});
                                 if(item.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY 
                                         || item.getLocalDate().getDayOfWeek() == DayOfWeek.SUNDAY 
-                                        || Svatky.ALL.stream().anyMatch(svatek -> svatek.equals(item.getLocalDate()))){
+                                        || HolidaysDAO.ALL.stream().anyMatch(svatek -> svatek.equals(item.getLocalDate()))){
                                     setDisable(true);
                                 }
                                 if(obsazeno.stream().anyMatch(obsazeno -> obsazeno.equals(item.getLocalDate()))){

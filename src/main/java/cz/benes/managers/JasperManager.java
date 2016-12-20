@@ -1,9 +1,9 @@
 package cz.benes.managers;
 
-import cz.benes.managers.db.Svatky;
+import cz.benes.managers.db.HolidaysDAO;
 import cz.benes.beanfactory.DaysFactory;
-import cz.benes.beans.DAODochazka;
-import cz.benes.beans.InOut_enum;
+import cz.benes.domain.AttendanceRecord;
+import cz.benes.domain.RecordType;
 import static cz.benes.controllers.FXMLDochazkaController.ZAMESTNANEC;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -27,7 +27,7 @@ import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
 public class JasperManager {
-    public static void getReport(List<DAODochazka> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
+    public static void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
         Duration odpracovano = Duration.ZERO;
         Duration odpracovanoVikend = Duration.ZERO;
         Duration odpracovanoSvatek = Duration.ZERO;
@@ -39,12 +39,12 @@ public class JasperManager {
         // vstupní data
         LocalTime prichod = null;
          
-        for (DAODochazka zaznam : zaznamyZaMesic){
+        for (AttendanceRecord zaznam : zaznamyZaMesic){
             switch (zaznam.getIn_out()) {
-                case InOut_enum.IN:
+                case RecordType.IN:
                     prichod = LocalTime.parse(zaznam.getTime());
                     break;
-                case InOut_enum.OUT:
+                case RecordType.OUT:
                     LocalTime odchod = LocalTime.parse(zaznam.getTime());
                     odpracovano = odpracovano.plus(Duration.between(prichod, odchod));
                     if ((LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SATURDAY 
@@ -52,20 +52,20 @@ public class JasperManager {
                         odpracovanoVikend = odpracovano.plus(Duration.between(prichod, odchod));
                     }
                     break;
-                case InOut_enum.DOV:
+                case RecordType.DOV:
                     dnuDovolene++;
                     break;
-                case InOut_enum.NEM:
+                case RecordType.NEM:
                     dnuNemocenske++;
                     break;
-                case InOut_enum.PAR:    
+                case RecordType.PAR:
                     dnuParagraf++;
                     break;       
             }
         }
                 
         // odpracované hodiny o svátku    
-        for (LocalDate svatek : Svatky.ALL){
+        for (LocalDate svatek : HolidaysDAO.ALL){
             LocalDate svatekTentoRok = LocalDate.of(datum.getYear(), svatek.getMonthValue(), svatek.getDayOfMonth());
             if (svatekTentoRok.getMonthValue() == datum.getMonthValue()
                     && svatekTentoRok.getDayOfWeek() != DayOfWeek.SATURDAY 
@@ -73,13 +73,13 @@ public class JasperManager {
                 dnuSvatku++;
             }            
            
-            for (DAODochazka zaznam : zaznamyZaMesic){
+            for (AttendanceRecord zaznam : zaznamyZaMesic){
                 if (svatekTentoRok.equals(LocalDate.parse(zaznam.getDate()))){
                     switch (zaznam.getIn_out()) {
-                        case InOut_enum.IN:
+                        case RecordType.IN:
                             prichod = LocalTime.parse(zaznam.getTime());
                             break;
-                        case InOut_enum.OUT:
+                        case RecordType.OUT:
                             LocalTime odchod = LocalTime.parse(zaznam.getTime());
                             odpracovanoSvatek = odpracovano.plus(Duration.between(prichod, odchod));
                             break;

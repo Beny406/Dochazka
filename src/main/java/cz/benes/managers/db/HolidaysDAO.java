@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Svatky {
+public class HolidaysDAO {
     
     static {
         spojeni = DBConnection.getConnection();
@@ -59,7 +59,7 @@ public class Svatky {
     
     public static int getPocetSvatkuVmesici(LocalDate datum) {
         int dnuSvatku = 0;    
-        for (LocalDate svatek : Svatky.ALL){
+        for (LocalDate svatek : HolidaysDAO.ALL){
             LocalDate svatekTentoRok = LocalDate.of(datum.getYear(), svatek.getMonthValue(), svatek.getDayOfMonth());
             if (svatekTentoRok.getMonthValue() == datum.getMonthValue()
                     && svatekTentoRok.getDayOfWeek() != DayOfWeek.SATURDAY

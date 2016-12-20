@@ -1,16 +1,10 @@
 package cz.benes.controllers;
 
-import cz.benes.beans.CheckListDen;
-import cz.benes.beans.DAODochazka;
-import cz.benes.beans.InOut_enum;
-import cz.benes.managers.db.Dochazka;
-import cz.benes.managers.db.Svatky;
-import java.net.URL;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import cz.benes.domain.AttendanceRecord;
+import cz.benes.domain.CheckListDen;
+import cz.benes.domain.RecordType;
+import cz.benes.managers.db.AttendanceDAO;
+import cz.benes.managers.db.HolidaysDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,6 +18,13 @@ import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import org.controlsfx.control.CheckListView;
 
+import java.net.URL;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
 public class FXMLDochazkaDovolenaController implements Initializable {
 
     ObservableList<CheckListDen> data = FXCollections.observableArrayList();
@@ -36,10 +37,10 @@ public class FXMLDochazkaDovolenaController implements Initializable {
 
     @FXML
     void handleOKButton(ActionEvent event) {              
-        if (Dochazka.deleteWithCondition(InOut_enum.DOV)){
+        if (AttendanceDAO.deleteWithCondition(RecordType.DOV)){
             ObservableList<CheckListDen> vyber = checkList.getCheckModel().getCheckedItems();
             for (CheckListDen d : vyber){
-                Dochazka.insert(null, d.getLocalDate().toString(), null ,InOut_enum.DOV);
+                AttendanceDAO.insert(null, d.getLocalDate().toString(), null , RecordType.DOV);
             }
             ((Node)(event.getSource())).getScene().getWindow().hide();     
         }
@@ -52,10 +53,10 @@ public class FXMLDochazkaDovolenaController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        List<DAODochazka> dov_tentoMesic = Dochazka.getThisMonthWithCondition(InOut_enum.DOV);
+        List<AttendanceRecord> dov_tentoMesic = AttendanceDAO.getThisMonthWithCondition(RecordType.DOV);
         dov_tentoMesic.forEach(e -> dovolena.add(LocalDate.parse(e.getDate())));
  
-        List<DAODochazka> nem_par_tentoMesic = Dochazka.getThisMonthWithCondition(InOut_enum.NEM, InOut_enum.PAR);
+        List<AttendanceRecord> nem_par_tentoMesic = AttendanceDAO.getThisMonthWithCondition(RecordType.NEM, RecordType.PAR);
         nem_par_tentoMesic.forEach(e -> obsazeno.add(LocalDate.parse(e.getDate())));
         
         int pocetDniMesice = LocalDate.now().getMonth().length(LocalDate.now().isLeapYear());
@@ -88,7 +89,7 @@ public class FXMLDochazkaDovolenaController implements Initializable {
                             });
                             if(item.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY 
                                     || item.getLocalDate().getDayOfWeek() == DayOfWeek.SUNDAY 
-                                    || Svatky.ALL.stream().anyMatch(svatek -> svatek.equals(item.getLocalDate()))){
+                                    || HolidaysDAO.ALL.stream().anyMatch(svatek -> svatek.equals(item.getLocalDate()))){
                                 setDisable(true);
                             }
                             if(obsazeno.stream().anyMatch(obsazeno -> obsazeno.equals(item.getLocalDate()))){

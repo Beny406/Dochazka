@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.benes.beans;
+package cz.benes.domain;
 
 import java.io.Serializable;
 
@@ -14,12 +14,12 @@ import java.io.Serializable;
 
 // beana pro opravu a prohlížení
 
-public class DAODochazka implements Serializable {
+public class AttendanceRecord implements Serializable {
     private String date;
     private String time;
     private String in_out;
 
-    public DAODochazka(String date, String time, String in_out) {
+    public AttendanceRecord(String date, String time, String in_out) {
         this.date = date;
         this.time = time;
         this.in_out = in_out;

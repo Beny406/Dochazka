@@ -1,6 +1,6 @@
 package cz.benes.controllers;
 
-import cz.benes.managers.db.Svatky;
+import cz.benes.managers.db.HolidaysDAO;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -42,7 +42,7 @@ public class FXMLAdminSvatkyController implements Initializable {
         if (datePicker.getValue() == null){
             infoLabel.setText("Pole je prázdné!");
         } else {
-            if (Svatky.insert(datePicker.getValue()) == 1){
+            if (HolidaysDAO.insert(datePicker.getValue()) == 1){
                 svatky.add(datePicker.getValue());
                 infoLabel.setText("Záznam přidán.");             
             } else{
@@ -53,7 +53,7 @@ public class FXMLAdminSvatkyController implements Initializable {
 
     @FXML
     void handleOdebratButton(ActionEvent event) {
-        if (Svatky.delete(selected) == 1) {
+        if (HolidaysDAO.delete(selected) == 1) {
             infoLabel.setText("Záznam odebrán.");
             svatky.remove(svatekListView.getSelectionModel().getSelectedIndex());       
         } else {
@@ -63,7 +63,7 @@ public class FXMLAdminSvatkyController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Svatky.ALL.forEach(e -> svatky.add(e));
+        HolidaysDAO.ALL.forEach(e -> svatky.add(e));
         svatekListView.setItems(svatky);
         svatekListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             selected = newValue;

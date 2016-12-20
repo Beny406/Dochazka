@@ -1,6 +1,6 @@
 package cz.benes.controllers;
 
-import cz.benes.beans.DAOZamestnanec;
+import cz.benes.domain.Employee;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -11,7 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import cz.benes.managers.WindowManager;
-import cz.benes.managers.db.Zamestnanci;
+import cz.benes.managers.db.EmployeesDAO;
 import java.util.prefs.Preferences;
 
 public class FXMLLoginController implements Initializable {
@@ -25,7 +25,7 @@ public class FXMLLoginController implements Initializable {
     @FXML
     private TextField uzHeslo;
 
-    static DAOZamestnanec zamestnanec;
+    static Employee zamestnanec;
 
     @FXML
     public void handleLoginButton(ActionEvent event) throws IOException, InterruptedException {
@@ -35,7 +35,7 @@ public class FXMLLoginController implements Initializable {
             zadaneId = "1";
         }
         if (!zadaneId.equals("")) {
-            zamestnanec = Zamestnanci.getByID(zadaneId);
+            zamestnanec = EmployeesDAO.getByID(zadaneId);
             if (zamestnanec != null) {
                 if (zadaneId.equals(zamestnanec.getLogin_id()) && uzHeslo.getText().equals(zamestnanec.getHeslo())) {
                     WindowManager.getWindow(getClass(), null, "/fxml/FXMLDochazka.fxml", zamestnanec.getJmeno(), Boolean.TRUE);

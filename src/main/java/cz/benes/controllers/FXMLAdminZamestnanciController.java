@@ -1,7 +1,7 @@
 package cz.benes.controllers;
 
-import cz.benes.beans.DAOZamestnanec;
-import cz.benes.managers.db.Zamestnanci;
+import cz.benes.domain.Employee;
+import cz.benes.managers.db.EmployeesDAO;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -36,14 +36,14 @@ public class FXMLAdminZamestnanciController implements Initializable {
     private Label infoLabel;
     
     @FXML
-    private ListView<DAOZamestnanec> zamestnanciListView;
+    private ListView<Employee> zamestnanciListView;
     
-    private ObservableList<DAOZamestnanec> zamestnanci = FXCollections.observableArrayList();
+    private ObservableList<Employee> zamestnanci = FXCollections.observableArrayList();
     
-    private DAOZamestnanec selected;
+    private Employee selected;
 
-    private DAOZamestnanec getZamOfValues(){
-        return new DAOZamestnanec(TextAreaLoginID.getText(), 
+    private Employee getZamOfValues(){
+        return new Employee(TextAreaLoginID.getText(),
                                   TextAreaJmenoPrijmeni.getText(), 
                                   TextAreaHeslo.getText(),
                                   TextAreaUvazek.getText(),
@@ -54,10 +54,10 @@ public class FXMLAdminZamestnanciController implements Initializable {
     void handlePridatZamestnanceButton(ActionEvent event) {
         if (!TextAreaJmenoPrijmeni.getText().equals("") && !TextAreaLoginID.getText().equals("") && !TextAreaUvazek.getText().equals("")){
             // kontrola zda login_id již neexistuje
-            if (Zamestnanci.getByID(TextAreaLoginID.getText()) == null){
-                if (Zamestnanci.insert(getZamOfValues()) != 0) {
+            if (EmployeesDAO.getByID(TextAreaLoginID.getText()) == null){
+                if (EmployeesDAO.insert(getZamOfValues()) != 0) {
                     infoLabel.setText("Přidání proběhlo úspěšně.");
-                    zamestnanci.add(new DAOZamestnanec(getZamOfValues()));
+                    zamestnanci.add(new Employee(getZamOfValues()));
                 } else {
                     infoLabel.setText("Chyba!!!");
                 }   
@@ -73,7 +73,7 @@ public class FXMLAdminZamestnanciController implements Initializable {
     void handleOpravitButton(ActionEvent event){
         if (selected != null){
             if (TextAreaLoginID.getText().equals(selected.getLogin_id())){
-                if (Zamestnanci.update(getZamOfValues()) != 0) {
+                if (EmployeesDAO.update(getZamOfValues()) != 0) {
                     infoLabel.setText("Aktualizace proběhla úspěšně.");
                 } else {
                     infoLabel.setText("Chyba!!!");
@@ -87,7 +87,7 @@ public class FXMLAdminZamestnanciController implements Initializable {
     
     @FXML
     void handleSmazatButton(ActionEvent event){
-        if (Zamestnanci.delete(selected.getLogin_id()) != 0) {
+        if (EmployeesDAO.delete(selected.getLogin_id()) != 0) {
             infoLabel.setText("Smazání proběhlo úspěšně.");
             zamestnanci.remove(selected);
         } else {
@@ -101,7 +101,7 @@ public class FXMLAdminZamestnanciController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // vyplnění seznamu zaměstnanců
-        zamestnanci.addAll(Zamestnanci.getAll());
+        zamestnanci.addAll(EmployeesDAO.getAll());
         zamestnanciListView.setItems(zamestnanci);
         zamestnanciListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->{ 
             selected = newValue;       

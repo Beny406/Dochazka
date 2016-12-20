@@ -1,23 +1,23 @@
-package cz.benes.beans;
+package cz.benes.domain;
 
 import java.io.Serializable;
 
-public class DAOZamestnanec implements Serializable{
+public class Employee implements Serializable{
     private String jmeno;
     private String login_id;
     private String heslo;
     private double uvazek;
     private boolean admin;   
 
-    public DAOZamestnanec() {
+    public Employee() {
     }
     
-    public DAOZamestnanec(String jmeno, String login_id) {
+    public Employee(String jmeno, String login_id) {
         this.jmeno = jmeno;
         this.login_id = login_id;
     }
 
-    public DAOZamestnanec(String login_id, String jmeno, String heslo, String uvazek, String prava) {
+    public Employee(String login_id, String jmeno, String heslo, String uvazek, String prava) {
         this.jmeno = jmeno;
         this.login_id = login_id;
         this.heslo = heslo;
@@ -25,7 +25,7 @@ public class DAOZamestnanec implements Serializable{
         this.admin = prava.equals("1");
     }
 
-    public DAOZamestnanec(DAOZamestnanec zamestnanec) {
+    public Employee(Employee zamestnanec) {
         this.login_id = zamestnanec.getLogin_id();
         this.jmeno = zamestnanec.getJmeno();
         this.heslo = zamestnanec.getHeslo();

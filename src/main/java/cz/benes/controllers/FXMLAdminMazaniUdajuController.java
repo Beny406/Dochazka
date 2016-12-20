@@ -5,7 +5,7 @@
  */
 package cz.benes.controllers;
 
-import cz.benes.beans.CheckListMesic;
+import cz.benes.domain.CheckListMesic;
 import cz.benes.connection.DBConnection;
 import java.net.URL;
 import java.sql.Connection;
