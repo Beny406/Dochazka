@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.media.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="618.0" prefWidth="537.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.benes.controllers.FXMLAdminProhlizeniController">
+   <children>
+      <HBox prefHeight="618.0" prefWidth="537.0">
+         <children>
+            <ScrollPane prefHeight="623.0" prefWidth="190.0">
+               <content>
+                  <ListView fx:id="zamestnanciListView" prefHeight="615.0" prefWidth="187.0" />
+               </content>
+            </ScrollPane>
+            <VBox prefHeight="318.0" prefWidth="346.0">
+               <children>
+                  <Pane prefHeight="554.0" prefWidth="346.0">
+                     <children>
+                        <TableView fx:id="tableView" editable="true" prefHeight="551.0" prefWidth="346.0">
+                           <columns>
+                              <TableColumn fx:id="dateColumn" onEditCommit="#handleDatumEditCommit" prefWidth="123.0" text="Datum" />
+                              <TableColumn fx:id="timeColumn" onEditCommit="#handleCasEditCommit" prefWidth="106.0" text="Čas" />
+                              <TableColumn fx:id="in_outColumn" prefWidth="116.0" text="Příchod/Odchod" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </Pane>
+                  <Pane prefHeight="70.0" prefWidth="346.0" styleClass="background" stylesheets="@../css/background.css">
+                     <children>
+                        <TextField fx:id="rokTextField" layoutX="14.0" layoutY="12.0" prefHeight="25.0" prefWidth="56.0" promptText="Rok" />
+                        <TextField fx:id="mesicTextField" layoutX="83.0" layoutY="12.0" prefHeight="25.0" prefWidth="56.0" promptText="Měsíc" />
+                        <Button fx:id="pridejButton" disable="true" layoutX="252.0" layoutY="12.0" mnemonicParsing="false" onAction="#handlePridejButton" prefWidth="65.0" text="Přidej" />
+                        <Button layoutX="173.0" layoutY="12.0" mnemonicParsing="false" onAction="#handleSmazButton" prefWidth="65.0" text="Smaž" />
+                        <Label fx:id="infoLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="52.0" layoutY="41.0" prefHeight="17.0" prefWidth="243.0" textAlignment="CENTER" />
+                     </children>
+                  </Pane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

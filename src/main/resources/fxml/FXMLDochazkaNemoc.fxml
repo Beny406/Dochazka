@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="401.0" prefWidth="216.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.benes.controllers.FXMLDochazkaNemocController">
+   <children>
+      <HBox prefHeight="401.0" prefWidth="216.0">
+         <children>
+            <Pane fx:id="pane" prefHeight="401.0" prefWidth="150.0">
+               <children>
+                  <ListView fx:id="checkList" prefHeight="401.0" prefWidth="145.0" />
+               </children></Pane>
+            <Pane prefHeight="401.0" prefWidth="77.0" styleClass="background" stylesheets="@../css/background.css">
+               <children>
+                  <Button layoutX="16.0" layoutY="36.0" mnemonicParsing="false" onAction="#handleOKButton" prefHeight="25.0" prefWidth="50.0" text="OK" />
+                  <Button layoutX="16.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleZpetButton" prefWidth="50.0" text="Zpět" />
+               </children>
+            </Pane>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

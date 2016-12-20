@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="137.0" prefWidth="209.0" styleClass="background" stylesheets="@../css/background.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cz.benes.controllers.FXMLAdminController">
+   <children>
+      <Button layoutX="6.0" layoutY="8.0" minHeight="40.0" mnemonicParsing="false" onAction="#handleZamestnanciButton" prefHeight="49.0" prefWidth="88.0" text="Zaměstnanci" />
+      <Button layoutX="107.0" layoutY="8.0" minHeight="40.0" mnemonicParsing="false" onAction="#handleSvatkyButton" prefHeight="49.0" prefWidth="88.0" text="Svátky" />
+      <Button layoutX="107.0" layoutY="74.0" minHeight="40.0" mnemonicParsing="false" onAction="#handleProhlizeniAOprava" prefHeight="49.0" prefWidth="88.0" text="Prohlížení a oprava" textAlignment="CENTER" wrapText="true" />
+      <Button layoutX="6.0" layoutY="74.0" minHeight="40.0" mnemonicParsing="false" onAction="#handleMazaniUdaju" prefHeight="49.0" prefWidth="88.0" text="Mazání údajů" />
+   </children>
+</AnchorPane>
