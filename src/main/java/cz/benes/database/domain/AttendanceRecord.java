@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.benes.domain;
+package cz.benes.database.domain;
 
 import java.io.Serializable;
 
@@ -17,12 +17,12 @@ import java.io.Serializable;
 public class AttendanceRecord implements Serializable {
     private String date;
     private String time;
-    private String in_out;
+    private String type;
 
-    public AttendanceRecord(String date, String time, String in_out) {
+    public AttendanceRecord(String date, String time, String type) {
         this.date = date;
         this.time = time;
-        this.in_out = in_out;
+        this.type = type;
     }
 
     public String getDate() {
@@ -33,8 +33,8 @@ public class AttendanceRecord implements Serializable {
         return time;
     }
 
-    public String getIn_out() {
-        return in_out;
+    public String getType() {
+        return type;
     }
 
     public void setDate(String date) {
@@ -45,8 +45,8 @@ public class AttendanceRecord implements Serializable {
         this.time = time;
     }
 
-    public void setIn_out(String in_out) {
-        this.in_out = in_out;
+    public void setType(String type) {
+        this.type = type;
     }
     
     

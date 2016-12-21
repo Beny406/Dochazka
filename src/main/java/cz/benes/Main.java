@@ -1,6 +1,6 @@
 package cz.benes;
 
-import cz.benes.connection.DBConnection;
+import cz.benes.database.DBConnection;
 import cz.benes.managers.WindowManager;
 import javafx.application.Application;
 import javafx.stage.Stage;

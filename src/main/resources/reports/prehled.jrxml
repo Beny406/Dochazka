@@ -48,7 +48,7 @@
 	<group name="time">
 		<groupExpression><![CDATA[]]></groupExpression>
 	</group>
-	<group name="in_out">
+	<group name="type">
 		<groupExpression><![CDATA[]]></groupExpression>
 	</group>
 	<background>

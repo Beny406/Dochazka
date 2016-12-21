@@ -1,25 +1,13 @@
 package cz.benes.controllers;
 
 import cz.benes.beanfactory.HolidaysFactory;
-import cz.benes.domain.AttendanceRecord;
-import cz.benes.domain.RecordType;
-import cz.benes.managers.db.AttendanceDAO;
-import cz.benes.domain.Employee;
+import cz.benes.database.dao.AttendanceDAO;
+import cz.benes.database.dao.HolidaysDAO;
+import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.Employee;
+import cz.benes.database.domain.RecordType;
 import cz.benes.managers.JasperManager;
-import cz.benes.managers.db.HolidaysDAO;
 import cz.benes.managers.WindowManager;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -28,17 +16,25 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import java.time.Duration;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.view.JasperViewer;
+
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 
 public class FXMLDochazkaController implements Initializable {
@@ -48,9 +44,11 @@ public class FXMLDochazkaController implements Initializable {
     }
     
     public static final Employee ZAMESTNANEC = FXMLLoginController.zamestnanec;
+
     private final int dnuSvatku = HolidaysDAO.getPocetSvatkuVmesici(LocalDate.now());
     
     private Duration odpracovano;
+
     private int pracDnu;
     
     @FXML
@@ -161,7 +159,7 @@ public class FXMLDochazkaController implements Initializable {
     
     @FXML
     void handleParagrafButton(ActionEvent event) throws IOException{
-        WindowManager.getWindow(getClass(), event, "/fxml/FXMLDochazkaParagraf.fxml", "Přidat paragraf", Boolean.TRUE);
+        WindowManager.getWindow(getClass(), event, "/fxml/FXMLDochazkaParagraf.fxml", "Přidat resolvedType", Boolean.TRUE);
     }
     
     @Override
@@ -188,7 +186,7 @@ public class FXMLDochazkaController implements Initializable {
         if (poslZaznam != null){
             String datumPoslZaznamu = poslZaznam.getDate();
             String casPoslZaznamu = poslZaznam.getTime();
-            String poslAkce = poslZaznam.getIn_out();
+            String poslAkce = poslZaznam.getType();
 
             if ((poslAkce).equals(RecordType.IN)){
                 prichodButton.setDisable(true);
@@ -226,7 +224,6 @@ public class FXMLDochazkaController implements Initializable {
         // zjištění odpracované doby v aktuálním měsíci při startupu
         odpracovano = AttendanceDAO.spocitejOdpracovano(AttendanceDAO.getThisMonth());
         odpracovanoLabel.setText(odpracovano.toHours() + " hodin " + odpracovano.toMinutes()%60 + " minut");
-
 
         // Zbývá odpracovat on startup
         Duration zbyvaOpdracovat = Duration.ofMinutes((long) (pracDnu * ZAMESTNANEC.getUvazek() * 60 - odpracovano.toMinutes()));

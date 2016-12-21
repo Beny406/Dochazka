@@ -1,17 +1,17 @@
 package cz.benes.controllers;
 
-import cz.benes.domain.Employee;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import cz.benes.database.dao.EmployeesDAO;
+import cz.benes.database.domain.Employee;
+import cz.benes.managers.WindowManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import cz.benes.managers.WindowManager;
-import cz.benes.managers.db.EmployeesDAO;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
 public class FXMLLoginController implements Initializable {
@@ -39,7 +39,7 @@ public class FXMLLoginController implements Initializable {
             if (zamestnanec != null) {
                 if (zadaneId.equals(zamestnanec.getLogin_id()) && uzHeslo.getText().equals(zamestnanec.getHeslo())) {
                     WindowManager.getWindow(getClass(), null, "/fxml/FXMLDochazka.fxml", zamestnanec.getJmeno(), Boolean.TRUE);
-                    ((Node) (event.getSource())).getScene().getWindow().hide();
+                    WindowManager.hideNode(event);
                 } else {
                     loginLabel.setText("Chybné heslo nebo ID!");
                 }

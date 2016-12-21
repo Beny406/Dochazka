@@ -3,25 +3,29 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.benes.domain;
+package cz.benes.database.domain;
 
+import cz.benes.database.dao.HolidaysDAO;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * @author PB
  */
 
 // beana pro zadání nemocenské, dovolené, paragrafu
-public class CheckListDen {
+public class CheckableDay {
 
     private final BooleanProperty on = new SimpleBooleanProperty();
+
     private LocalDate localDate;
 
-    public CheckListDen(LocalDate localDate, boolean on) {
+    public CheckableDay(LocalDate localDate, boolean on) {
         this.localDate = localDate;
         setOn(on);
     }
@@ -42,7 +46,15 @@ public class CheckListDen {
         this.localDate = localDate;
     }
 
+    public boolean in(List<LocalDate> collection){
+        return collection.contains(getLocalDate());
+    }
 
+    public boolean isWeekendOrHoliday() {
+        return this.getLocalDate().getDayOfWeek() == DayOfWeek.SATURDAY
+                || this.getLocalDate().getDayOfWeek() == DayOfWeek.SUNDAY
+                || HolidaysDAO.ALL.stream().anyMatch(svatek -> svatek.equals(this.getLocalDate()));
+    }
     @Override
     public String toString() {
         return localDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd EE"));

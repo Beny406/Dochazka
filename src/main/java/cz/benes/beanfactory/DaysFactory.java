@@ -1,9 +1,9 @@
 package cz.benes.beanfactory;
 
-import cz.benes.domain.AttendanceRecord;
-import cz.benes.domain.RecordType;
-import cz.benes.domain.JasperRow;
-import cz.benes.managers.db.HolidaysDAO;
+import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.RecordType;
+import cz.benes.database.domain.JasperRow;
+import cz.benes.database.dao.HolidaysDAO;
 
 import java.sql.SQLException;
 import java.time.Duration;
@@ -34,18 +34,18 @@ public class DaysFactory {
             
             for (AttendanceRecord zaznam : vysledky){
                 String datumZaznamu = zaznam.getDate();
-                String akceZaznamu = zaznam.getIn_out();
+                String akceZaznamu = zaznam.getType();
                 String casZaznamu = zaznam.getTime();
 
                 if (LocalDate.parse(datumZaznamu).equals(denMesice) ){
-                    switch (akceZaznamu){
-                        case RecordType.IN:
+                    switch (RecordType.valueOf(akceZaznamu)){
+                        case IN:
                             prichod = LocalTime.parse(casZaznamu);
                             if (prichodColumn.equals("")){
                                 prichodColumn = casZaznamu;
                             }
                             break;
-                        case RecordType.OUT:
+                        case OUT:
                             LocalTime odchod = LocalTime.parse(casZaznamu);
                             odchodColumn = casZaznamu;
                             odpracovano = odpracovano.plus(Duration.between(prichod, odchod));

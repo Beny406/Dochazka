@@ -1,4 +1,4 @@
-package cz.benes.domain;
+package cz.benes.database.domain;
 
 import java.io.Serializable;
 
@@ -32,8 +32,6 @@ public class Employee implements Serializable{
         this.uvazek = zamestnanec.getUvazek();
         this.admin = zamestnanec.getAdmin();
     }
-
-    
     
     public String getJmeno() {
         return jmeno;
@@ -74,8 +72,6 @@ public class Employee implements Serializable{
     public void setAdmin(boolean admin) {
         this.admin = admin;
     }
-    
-    
     
     @Override
     public String toString() {

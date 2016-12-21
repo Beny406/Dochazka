@@ -5,7 +5,7 @@
  */
 package cz.benes.managers;
 
-import java.io.IOException;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -14,11 +14,14 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 /**
  *
  * @author PB
  */
 public class WindowManager {
+
     public static FXMLLoader getWindow(Class clazz, Event event, String source, String title, Boolean resizable){
         FXMLLoader fxmlLoader = new FXMLLoader(clazz.getResource(source));
         try {
@@ -39,4 +42,9 @@ public class WindowManager {
         }
         return fxmlLoader;
     }
+
+    public static void hideNode(ActionEvent event) {
+        ((Node) (event.getSource())).getScene().getWindow().hide();
+    }
+
 }

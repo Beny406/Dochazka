@@ -1,15 +1,13 @@
 package cz.benes.controllers;
 
 import cz.benes.managers.WindowManager;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+
+import java.io.IOException;
 
 
-public class FXMLAdminController implements Initializable {
+public class FXMLAdminController {
     
     @FXML
     void handleZamestnanciButton(ActionEvent event) throws IOException{
@@ -31,10 +29,6 @@ public class FXMLAdminController implements Initializable {
         WindowManager.getWindow(getClass(), event, "/fxml/FXMLAdminMazaniUdaju.fxml", "Mazání údajů", Boolean.TRUE);
 
     }
-    
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-       
-    }    
+
     
 }

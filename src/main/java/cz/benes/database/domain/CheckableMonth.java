@@ -1,11 +1,11 @@
-package cz.benes.domain;
+package cz.benes.database.domain;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class CheckListMesic {
+public class CheckableMonth {
     
     private LocalDate localDate;
     
@@ -15,7 +15,7 @@ public class CheckListMesic {
         return this.on;
     }
     
-    public CheckListMesic(LocalDate localDate, boolean on) {
+    public CheckableMonth(LocalDate localDate, boolean on) {
         this.localDate = localDate;
         setOn(on);
     }
@@ -32,7 +32,7 @@ public class CheckListMesic {
         this.localDate = localDate;
     }
 
-    public CheckListMesic() {
+    public CheckableMonth() {
     }
     
     @Override

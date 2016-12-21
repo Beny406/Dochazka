@@ -1,7 +1,7 @@
-package cz.benes.managers.db;
+package cz.benes.database.dao;
 
-import cz.benes.domain.Employee;
-import cz.benes.connection.DBConnection;
+import cz.benes.database.domain.Employee;
+import cz.benes.database.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

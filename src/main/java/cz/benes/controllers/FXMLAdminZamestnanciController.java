@@ -1,9 +1,7 @@
 package cz.benes.controllers;
 
-import cz.benes.domain.Employee;
-import cz.benes.managers.db.EmployeesDAO;
-import java.net.URL;
-import java.util.ResourceBundle;
+import cz.benes.database.dao.EmployeesDAO;
+import cz.benes.database.domain.Employee;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,6 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class FXMLAdminZamestnanciController implements Initializable {
 
@@ -95,9 +96,7 @@ public class FXMLAdminZamestnanciController implements Initializable {
         }     
          
     }
-    
-    
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // vyplnění seznamu zaměstnanců

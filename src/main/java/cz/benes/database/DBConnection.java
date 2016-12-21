@@ -1,4 +1,4 @@
-package cz.benes.connection;
+package cz.benes.database;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -14,7 +14,7 @@ public class DBConnection {
     private static final String dbIP = Preferences.systemRoot().get("DOCHAZKA_DB_ADDRESS", "127.0.0.1");
     private static final String address = "jdbc:mysql://" + dbIP + "/dochazka";
     private static final String login = "root";
-    private static final String password = "root";
+    private static final String password = "";
 
     private static Connection connection = null;
 

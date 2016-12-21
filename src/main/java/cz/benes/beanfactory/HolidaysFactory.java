@@ -1,9 +1,9 @@
 package cz.benes.beanfactory;
 
-import cz.benes.domain.JasperRow;
-import cz.benes.domain.AttendanceRecord;
-import cz.benes.domain.RecordType;
-import cz.benes.managers.db.AttendanceDAO;
+import cz.benes.database.domain.JasperRow;
+import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.RecordType;
+import cz.benes.database.dao.AttendanceDAO;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +23,7 @@ public class HolidaysFactory {
             LocalDate denMesice = prvniDenMesice.plusDays(i);
             for (AttendanceRecord radek : dovolenaTentoMesic){
                 if (LocalDate.parse(radek.getDate()).equals(denMesice) ){
-                    poznamka = radek.getIn_out();
+                    poznamka = radek.getType();
                 }
             }
         seznamDnu.add(new JasperRow(denMesice.format(DateTimeFormatter.ofPattern("dd EE")), poznamka));

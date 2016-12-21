@@ -1,11 +1,27 @@
 package cz.benes.controllers;
 
-import cz.benes.domain.AttendanceRecord;
-import cz.benes.domain.RecordType;
-import cz.benes.domain.Employee;
-import cz.benes.connection.DBConnection;
-import cz.benes.managers.db.AttendanceDAO;
-import cz.benes.managers.db.EmployeesDAO;
+import cz.benes.database.DBConnection;
+import cz.benes.database.dao.AttendanceDAO;
+import cz.benes.database.dao.EmployeesDAO;
+import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.Employee;
+import cz.benes.database.domain.RecordType;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.Modality;
+import javafx.util.Callback;
+import jfxtras.scene.control.LocalTimePicker;
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -18,31 +34,6 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.FlowPane;
-import javafx.stage.Modality;
-import javafx.util.Callback;
-import jfxtras.scene.control.LocalTimePicker;
 
 
 public class FXMLAdminProhlizeniController implements Initializable {
@@ -74,15 +65,13 @@ public class FXMLAdminProhlizeniController implements Initializable {
     @FXML
     private Button pridejButton;
     
-    private static Connection spojeni;
-    
     private ObservableList<Employee> zamestnanciObservable = FXCollections.observableArrayList();
     
     private ObservableList<AttendanceRecord> dochazkaObservable = FXCollections.observableArrayList();
     
     private Employee selectedEmploye;
     
-    private TableManager tableManager = new TableManager();
+    private AdminDAO adminDAO = new AdminDAO();
 
     
     @FXML
@@ -92,10 +81,10 @@ public class FXMLAdminProhlizeniController implements Initializable {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Mazání záznamu");
             alert.setHeaderText("Opravdu chcete smazat záznam?");
-            alert.setContentText(selectedEmploye + " | " + selectedRow.getDate() + " | " +  selectedRow.getTime() + " | " + selectedRow.getIn_out());
+            alert.setContentText(selectedEmploye + " | " + selectedRow.getDate() + " | " +  selectedRow.getTime() + " | " + selectedRow.getType());
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == ButtonType.OK){
-                if (tableManager.delete(selectedRow) != 0) {
+                if (adminDAO.delete(selectedRow) != 0) {
                     infoLabel.setText("Mazání proběhlo úspěšně.");
                     dochazkaObservable.remove(selectedRow);
                 } else {
@@ -138,7 +127,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
         LocalTimePicker timePicker = new LocalTimePicker();
         timePicker.setPrefWidth(120);
         
-        ObservableList<String> in_out = FXCollections.observableArrayList(RecordType.IN , RecordType.OUT , RecordType.DOV , RecordType.NEM, RecordType.PAR );
+        ObservableList<Enum> in_out = FXCollections.observableArrayList(RecordType.IN , RecordType.OUT , RecordType.DOV , RecordType.NEM, RecordType.PAR );
         ChoiceBox choiceBox = new ChoiceBox(in_out);
         choiceBox.getSelectionModel().selectFirst();
         choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -156,7 +145,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
        
         if (result.get() == ButtonType.OK){
-            if (AttendanceDAO.insert(selectedEmploye, datePicker.getValue().toString(), timePicker.getLocalTime().toString(), (String) choiceBox.getValue()) != 0){
+            if (AttendanceDAO.insert(selectedEmploye, datePicker.getValue().toString(), timePicker.getLocalTime().toString(), RecordType.valueOf((String)choiceBox.getValue())) != 0){
                 infoLabel.setText("Zápis proběhl úspěšně.");
                 dochazkaObservable.add(new AttendanceRecord(datePicker.getValue().toString(),
                                          timePicker.getLocalTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")), 
@@ -173,7 +162,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
         int denMesice = Integer.parseInt(event.getNewValue().substring(8));
         int delkaMesice = Month.of(Integer.parseInt(event.getNewValue().substring(5,7))).length(leapYear);
         if (event.getNewValue().matches("((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])") && (denMesice <= delkaMesice)){
-            if (tableManager.updateDate(event) != 0){
+            if (adminDAO.updateDate(event) != 0){
                 infoLabel.setText("Údaj byl úspěšně přepsán.");
             } else {
                 infoLabel.setText("Chyba při přepisování údajů.");
@@ -188,7 +177,7 @@ public class FXMLAdminProhlizeniController implements Initializable {
     @FXML
     void handleCasEditCommit (TableColumn.CellEditEvent<AttendanceRecord, String> event) throws SQLException {
         if (event.getNewValue().matches("([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]")){
-            if (tableManager.updateTime(event) != 0){
+            if (adminDAO.updateTime(event) != 0){
                 infoLabel.setText("Údaj byl úspěšně přepsán.");
             }      
         } else {
@@ -198,7 +187,6 @@ public class FXMLAdminProhlizeniController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        spojeni = DBConnection.getConnection();
         
         rokTextField.setText(String.valueOf(LocalDate.now().getYear()));
         mesicTextField.setText(String.valueOf(LocalDate.now().getMonthValue()));
@@ -237,7 +225,9 @@ public class FXMLAdminProhlizeniController implements Initializable {
         });
     }
     
-    class TableManager {
+    class AdminDAO {
+        Connection spojeni = DBConnection.getConnection();
+
         public int delete(AttendanceRecord selectedRow) {
             int smazano = 0;
             try {

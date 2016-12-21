@@ -1,10 +1,15 @@
 package cz.benes.managers;
 
-import cz.benes.managers.db.HolidaysDAO;
 import cz.benes.beanfactory.DaysFactory;
-import cz.benes.domain.AttendanceRecord;
-import cz.benes.domain.RecordType;
-import static cz.benes.controllers.FXMLDochazkaController.ZAMESTNANEC;
+import cz.benes.database.dao.HolidaysDAO;
+import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.RecordType;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
+
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -15,16 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.design.JasperDesign;
-import net.sf.jasperreports.engine.xml.JRXmlLoader;
-import net.sf.jasperreports.view.JasperViewer;
+
+import static cz.benes.controllers.FXMLDochazkaController.ZAMESTNANEC;
 
 public class JasperManager {
     public static void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
@@ -40,25 +37,22 @@ public class JasperManager {
         LocalTime prichod = null;
          
         for (AttendanceRecord zaznam : zaznamyZaMesic){
-            switch (zaznam.getIn_out()) {
-                case RecordType.IN:
+            switch (RecordType.valueOf(zaznam.getType())) {
+                case IN:
                     prichod = LocalTime.parse(zaznam.getTime());
                     break;
-                case RecordType.OUT:
+                case OUT:
                     LocalTime odchod = LocalTime.parse(zaznam.getTime());
-                    odpracovano = odpracovano.plus(Duration.between(prichod, odchod));
-                    if ((LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SATURDAY 
-                            || (LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SUNDAY){
-                        odpracovanoVikend = odpracovano.plus(Duration.between(prichod, odchod));
-                    }
+                    if (isRecordWeekend(zaznam)) odpracovanoVikend = odpracovano.plus(Duration.between(prichod, odchod));
+                    else odpracovano = odpracovano.plus(Duration.between(prichod, odchod));
                     break;
-                case RecordType.DOV:
+                case DOV:
                     dnuDovolene++;
                     break;
-                case RecordType.NEM:
+                case NEM:
                     dnuNemocenske++;
                     break;
-                case RecordType.PAR:
+                case PAR:
                     dnuParagraf++;
                     break;       
             }
@@ -75,11 +69,11 @@ public class JasperManager {
            
             for (AttendanceRecord zaznam : zaznamyZaMesic){
                 if (svatekTentoRok.equals(LocalDate.parse(zaznam.getDate()))){
-                    switch (zaznam.getIn_out()) {
-                        case RecordType.IN:
+                    switch (RecordType.valueOf(zaznam.getType())) {
+                        case IN:
                             prichod = LocalTime.parse(zaznam.getTime());
                             break;
-                        case RecordType.OUT:
+                        case OUT:
                             LocalTime odchod = LocalTime.parse(zaznam.getTime());
                             odpracovanoSvatek = odpracovano.plus(Duration.between(prichod, odchod));
                             break;
@@ -92,7 +86,7 @@ public class JasperManager {
         int pocetDniMesice = datum.getMonth().length(LocalDate.now().isLeapYear());
         for (int i = 1; i <= pocetDniMesice ; i++){
             DayOfWeek denMesice = datum.withDayOfMonth(i).getDayOfWeek();
-            if (denMesice != DayOfWeek.SATURDAY && denMesice != DayOfWeek.SUNDAY){
+            if (isWorkingDay(denMesice)){
                 pracDnu++;
             }
         }
@@ -123,5 +117,14 @@ public class JasperManager {
         JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
         JasperPrint  jasperPrint  = JasperFillManager.fillReport(jasperReport, params, new JRBeanCollectionDataSource(DaysFactory.generateDays(zaznamyZaMesic, datum)));
         JasperViewer.viewReport(jasperPrint, false);
-    }    
+    }
+
+    private static boolean isWorkingDay(DayOfWeek denMesice) {
+        return denMesice != DayOfWeek.SATURDAY && denMesice != DayOfWeek.SUNDAY;
+    }
+
+    private static boolean isRecordWeekend(AttendanceRecord zaznam) {
+        return (LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SATURDAY
+                || (LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SUNDAY;
+    }
 }
