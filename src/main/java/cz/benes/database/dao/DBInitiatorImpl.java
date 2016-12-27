@@ -8,15 +8,6 @@ import java.util.Optional;
 
 public class DBInitiatorImpl extends AbstractDAO implements DBInitiator {
 
-    public static DBInitiator getInstance(){
-        return injector.getInstance(DBInitiatorImpl.class);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-    }
-
     @Override
     public void initiateDB() {
         try {

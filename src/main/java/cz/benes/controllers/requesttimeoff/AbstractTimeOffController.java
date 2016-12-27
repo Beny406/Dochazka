@@ -1,5 +1,6 @@
 package cz.benes.controllers.requesttimeoff;
 
+import com.google.inject.Inject;
 import cz.benes.controllers.AbstractController;
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.domain.AttendanceRecord;
@@ -9,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public abstract class AbstractTimeOffController extends AbstractController implements Initializable {
+public abstract class AbstractTimeOffController extends AbstractController {
 
     protected CheckListView<CheckableDay> checkList = new CheckListView<>();
 
@@ -33,7 +33,8 @@ public abstract class AbstractTimeOffController extends AbstractController imple
 
     List<LocalDate> resolvedType = new ArrayList<>();
 
-    AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);;
+    @Inject
+    AttendanceDAO attendanceDAO;
 
     abstract protected RecordType getRecordType();
 
@@ -60,6 +61,7 @@ public abstract class AbstractTimeOffController extends AbstractController imple
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
         List<AttendanceRecord> dov_tentoMesic = attendanceDAO.getThisMonthWithCondition(getRecordType());
         dov_tentoMesic.forEach(e -> resolvedType.add(LocalDate.parse(e.getDate())));
 

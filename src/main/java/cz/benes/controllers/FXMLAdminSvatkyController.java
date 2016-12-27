@@ -1,11 +1,11 @@
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.database.dao.HolidaysDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 
-public class FXMLAdminSvatkyController extends AbstractController implements Initializable {
+public class FXMLAdminSvatkyController extends AbstractController {
 
    
     @FXML
@@ -38,7 +38,8 @@ public class FXMLAdminSvatkyController extends AbstractController implements Ini
     
     private LocalDate selected;
 
-    protected HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
+    @Inject
+    protected HolidaysDAO holidaysDAO;
 
     @FXML
     void handlePridatButton(ActionEvent event) {
@@ -66,6 +67,8 @@ public class FXMLAdminSvatkyController extends AbstractController implements Ini
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
+
         holidaysDAO.getAll().forEach(e -> svatky.add(e));
         svatekListView.setItems(svatky);
         svatekListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {

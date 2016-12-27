@@ -1,12 +1,12 @@
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.database.dao.EmployeeDAO;
 import cz.benes.database.domain.Employee;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
@@ -15,7 +15,7 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class FXMLAdminZamestnanciController extends AbstractController implements Initializable {
+public class FXMLAdminZamestnanciController extends AbstractController {
 
     
     @FXML
@@ -41,7 +41,8 @@ public class FXMLAdminZamestnanciController extends AbstractController implement
     
     private ObservableList<Employee> zamestnanci = FXCollections.observableArrayList();
 
-    private EmployeeDAO employeeDAO = getInstance(EmployeeDAO.class);
+    @Inject
+    private EmployeeDAO employeeDAO;
 
     private Employee selected;
 
@@ -101,6 +102,8 @@ public class FXMLAdminZamestnanciController extends AbstractController implement
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
+
         // vyplnění seznamu zaměstnanců
         zamestnanci.addAll(employeeDAO.getAll());
         zamestnanciListView.setItems(zamestnanci);

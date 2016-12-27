@@ -9,10 +9,6 @@ import java.util.Map;
 
 public class EmployeeDAOImpl extends AbstractDAO implements EmployeeDAO {
 
-    public static EmployeeDAO getInstance(){
-        return injector.getInstance(EmployeeDAOImpl.class);
-    }
-
     @Override
     protected void init() {
         super.init();
@@ -25,7 +21,7 @@ public class EmployeeDAOImpl extends AbstractDAO implements EmployeeDAO {
     public List<Employee> getAll() {
         try (Connection conn = sql2o.open()) {
             return conn.createQuery("SELECT * FROM zamestnanci")
-                    .executeScalarList(Employee.class);
+                    .executeAndFetch(Employee.class);
         }
     }
 

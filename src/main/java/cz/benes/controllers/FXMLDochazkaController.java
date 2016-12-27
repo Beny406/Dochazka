@@ -1,5 +1,6 @@
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.beanfactory.HolidaysFactory;
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.dao.HolidaysDAO;
@@ -12,7 +13,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import net.sf.jasperreports.engine.*;
@@ -36,21 +36,25 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 
-public class FXMLDochazkaController extends AbstractController implements Initializable {
+public class FXMLDochazkaController extends AbstractController {
     
     static{
         System.out.println("Static");
     }
 
-    private Employee employee = getInstance(Employee.class);
+    @Inject
+    private Employee employee;
 
-    private AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);
+    @Inject
+    private AttendanceDAO attendanceDAO;
 
-    private HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
+    @Inject
+    private HolidaysDAO holidaysDAO;
 
-    private JasperService jasperService = getInstance(JasperService.class);
+    @Inject
+    private JasperService jasperService;
 
-    private final int dnuSvatku = holidaysDAO.getPocetSvatkuVmesici(LocalDate.now());
+    private int dnuSvatku;
     
     private Duration odpracovano;
 
@@ -166,9 +170,12 @@ public class FXMLDochazkaController extends AbstractController implements Initia
     void handleParagrafButton(ActionEvent event) throws IOException{
         windowService.getWindow(getClass(), event, "/fxml/FXMLDochazkaParagraf.fxml", "Přidat resolvedType", Boolean.TRUE);
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
+        dnuSvatku = holidaysDAO.getPocetSvatkuVmesici(LocalDate.now());
+
         System.out.println("initialize");
         Lden.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE")));
         Ldatum.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd.M.yyyy")));

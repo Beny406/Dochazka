@@ -19,17 +19,8 @@ import java.util.List;
 
 public class AttendanceDAOImpl extends AbstractDAO implements AttendanceDAO {
 
-    public static AttendanceDAO getInstance(){
-        return injector.getInstance(AttendanceDAOImpl.class);
-    }
-
     @Inject
     Employee employee;
-
-    @Override
-    protected void init() {
-        super.init();
-    }
 
     @Override
     public boolean insert(Employee employe, String date, String time, Enum recordType) {

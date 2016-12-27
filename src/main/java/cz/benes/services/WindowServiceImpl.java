@@ -39,7 +39,7 @@ public class WindowServiceImpl extends AbstractService implements WindowService 
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
-            System.err.println("Chyba při otevírání okna!");
+            System.err.println("Chyba při otevírání okna: " + ex.getCause());
         }
         return fxmlLoader;
     }

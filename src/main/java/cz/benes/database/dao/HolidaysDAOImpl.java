@@ -9,15 +9,6 @@ import java.util.stream.Collectors;
 
 public class HolidaysDAOImpl extends AbstractDAO implements HolidaysDAO {
 
-    public static HolidaysDAO getInstance(){
-        return injector.getInstance(HolidaysDAOImpl.class);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-    }
-
     @Override
     public List<LocalDate> getAll() {
         try (Connection conn = sql2o.open()) {

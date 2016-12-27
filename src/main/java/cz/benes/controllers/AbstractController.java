@@ -1,10 +1,21 @@
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.guice.InjectorAware;
 import cz.benes.services.WindowService;
+import javafx.fxml.Initializable;
 
-public class AbstractController implements InjectorAware {
+import java.net.URL;
+import java.util.ResourceBundle;
 
-    protected WindowService windowService = getInstance(WindowService.class);
+public class AbstractController implements InjectorAware, Initializable {
+
+    @Inject
+    protected WindowService windowService;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        injector.injectMembers(this);
+    }
 
 }

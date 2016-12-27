@@ -5,13 +5,13 @@
  */
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.domain.CheckableMonth;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -26,13 +26,14 @@ import java.util.ResourceBundle;
  *
  * @author PB
  */
-public class FXMLAdminMazaniUdajuController extends AbstractController implements Initializable {
+public class FXMLAdminMazaniUdajuController extends AbstractController {
 
     ObservableList<CheckableMonth> data = FXCollections.observableArrayList();
 
     private CheckListView<CheckableMonth> checkList;
 
-    protected AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);
+    @Inject
+    protected AttendanceDAO attendanceDAO;
 
     @FXML
     private TextField textFieldRok;

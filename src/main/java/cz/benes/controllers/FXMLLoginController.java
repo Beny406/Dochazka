@@ -5,7 +5,6 @@ import cz.benes.database.dao.EmployeeDAO;
 import cz.benes.database.domain.Employee;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
@@ -14,7 +13,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-public class FXMLLoginController extends AbstractController implements Initializable {
+public class FXMLLoginController extends AbstractController {
 
     @FXML
     private Label loginLabel;
@@ -28,7 +27,8 @@ public class FXMLLoginController extends AbstractController implements Initializ
     @Inject
     private EmployeeDAO employeeDAO;
 
-    private Employee employee = getInstance(Employee.class);
+    @Inject
+    private Employee employee;
 
     @FXML
     public void handleLoginButton(ActionEvent event) throws IOException, InterruptedException {
@@ -56,6 +56,8 @@ public class FXMLLoginController extends AbstractController implements Initializ
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
+
 //       Effect glow = new DropShadow(15, Color.BLUE);
 //       loginButton.setEffect(glow);
     }

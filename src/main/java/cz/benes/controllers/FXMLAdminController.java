@@ -26,7 +26,6 @@ public class FXMLAdminController extends AbstractController{
     @FXML
     void handleMazaniUdaju(ActionEvent event) throws IOException{
         windowService.getWindow(getClass(), event, "/fxml/FXMLAdminMazaniUdaju.fxml", "Mazání údajů", Boolean.TRUE);
-
     }
 
     

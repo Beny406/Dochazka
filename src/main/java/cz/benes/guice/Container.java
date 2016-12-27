@@ -14,4 +14,8 @@ public class Container {
         return injector;
     }
 
+    public static <T> T getInstance(Class<T> clazz){
+        return injector.getInstance(clazz);
+    }
+
 }

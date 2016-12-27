@@ -1,5 +1,6 @@
 package cz.benes.controllers;
 
+import com.google.inject.Inject;
 import cz.benes.database.dao.AbstractDAO;
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.dao.EmployeeDAO;
@@ -11,7 +12,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -35,11 +35,13 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 
-public class FXMLAdminProhlizeniController extends AbstractController implements Initializable {
+public class FXMLAdminProhlizeniController extends AbstractController {
 
-    AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);
+    @Inject
+    AttendanceDAO attendanceDAO;
 
-    EmployeeDAO employeeDAO = getInstance(EmployeeDAO.class);
+    @Inject
+    EmployeeDAO employeeDAO;
 
     @FXML
     private TextField rokTextField;
@@ -180,6 +182,7 @@ public class FXMLAdminProhlizeniController extends AbstractController implements
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        super.initialize(url, rb);
 
         rokTextField.setText(String.valueOf(LocalDate.now().getYear()));
         mesicTextField.setText(String.valueOf(LocalDate.now().getMonthValue()));
@@ -195,7 +198,7 @@ public class FXMLAdminProhlizeniController extends AbstractController implements
         // vyplní tableview
         dateColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord, String>("date"));
         timeColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord, String>("time"));
-        in_outColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord, String>("in_out"));
+        in_outColumn.setCellValueFactory(new PropertyValueFactory<AttendanceRecord, String>("type"));
 
         // aktualizace při označení jiného uživatele
         zamestnanciListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -220,9 +223,6 @@ public class FXMLAdminProhlizeniController extends AbstractController implements
 
     class AdminDAO extends AbstractDAO {
 
-        protected void init(){
-        }
-
         public int delete(AttendanceRecord selectedRow) {
             try (Connection conn = sql2o.open()) {
                 return conn.createQuery("DELETE FROM dochazka WHERE login_id= :login_id AND date= :date AND time= :time")
@@ -246,11 +246,11 @@ public class FXMLAdminProhlizeniController extends AbstractController implements
 
         public int updateTime(TableColumn.CellEditEvent<AttendanceRecord, String> event) {
             try (Connection conn = sql2o.open()) {
-                return conn.createQuery("UPDATE dochazka SET time= :timeSet WHERE jmeno= :jmeno AND date= :date AND time= timeWhere")
+                return conn.createQuery("UPDATE dochazka SET time= :timeSet WHERE jmeno= :jmeno AND date= :date AND time = :whereTime")
                         .addParameter("timeSet", event.getNewValue())
                         .addParameter("jmeno", selectedEmploye.getJmeno())
                         .addParameter("date", tableView.getSelectionModel().getSelectedItem().getDate())
-                        .addParameter("timeWhere", event.getOldValue()).executeUpdate().getResult();
+                        .addParameter("whereTime", event.getOldValue()).executeUpdate().getResult();
             }
         }
     }
