@@ -1,10 +1,10 @@
-package cz.benes.controllers.timeoff;
+package cz.benes.controllers.requesttimeoff;
 
+import cz.benes.controllers.AbstractController;
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.domain.AttendanceRecord;
 import cz.benes.database.domain.CheckableDay;
 import cz.benes.database.domain.RecordType;
-import cz.benes.managers.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public abstract class AbstractTimeOffController implements Initializable {
+public abstract class AbstractTimeOffController extends AbstractController implements Initializable {
 
     protected CheckListView<CheckableDay> checkList = new CheckListView<>();
 
@@ -32,6 +32,8 @@ public abstract class AbstractTimeOffController implements Initializable {
     protected List<LocalDate> occupied = new ArrayList<>();
 
     List<LocalDate> resolvedType = new ArrayList<>();
+
+    AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);;
 
     abstract protected RecordType getRecordType();
 
@@ -42,26 +44,26 @@ public abstract class AbstractTimeOffController implements Initializable {
 
     @FXML
     void handleZpetButton(ActionEvent event) {
-        WindowManager.hideNode(event);
+        windowService.hideNode(event);
     }
 
     @FXML
     void handleOKButton(ActionEvent event) {
-        if (AttendanceDAO.deleteWithCondition(getRecordType())){
+        if (attendanceDAO.deleteWithCondition(getRecordType())){
             ObservableList<CheckableDay> vyber = checkList.getCheckModel().getCheckedItems();
             for (CheckableDay d : vyber){
-                AttendanceDAO.insert(null, d.getLocalDate().toString(), null, getRecordType());
+                attendanceDAO.insert(null, d.getLocalDate().toString(), null, getRecordType());
             }
-            WindowManager.hideNode(event);
+            windowService.hideNode(event);
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        List<AttendanceRecord> dov_tentoMesic = AttendanceDAO.getThisMonthWithCondition(getRecordType());
+        List<AttendanceRecord> dov_tentoMesic = attendanceDAO.getThisMonthWithCondition(getRecordType());
         dov_tentoMesic.forEach(e -> resolvedType.add(LocalDate.parse(e.getDate())));
 
-        List<AttendanceRecord> nem_par_tentoMesic = AttendanceDAO.getThisMonthWithCondition(getOtherRecordTypes());
+        List<AttendanceRecord> nem_par_tentoMesic = attendanceDAO.getThisMonthWithCondition(getOtherRecordTypes());
         nem_par_tentoMesic.forEach(e -> occupied.add(LocalDate.parse(e.getDate())));
 
         int pocetDniMesice = LocalDate.now().getMonth().length(LocalDate.now().isLeapYear());

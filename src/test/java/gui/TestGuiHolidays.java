@@ -3,35 +3,26 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tests;
-import java.time.LocalDate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+package gui;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import org.junit.Test;
+
+import java.time.LocalDate;
+
 import static org.loadui.testfx.Assertions.verifyThat;
-import org.loadui.testfx.GuiTest;
 import static org.loadui.testfx.controls.Commons.hasText;
 /**
  *
  * @author PB
  */
-public class TestSvatky extends GuiTest {
-    // jak zavolat přímo metody? - nebudu muset označovat jednotlivá tlačítka
+public class TestGuiHolidays extends CommonGuiTest {
+
     @Override
-    protected Parent getRootNode() {
-        Parent parent = null;
-        try {
-            parent = FXMLLoader.load(getClass().getResource("/fxml/FXMLAdminSvatky.fxml"));
-            return parent;
-        } catch (Exception e) {
-            Logger.getLogger(TestSvatky.class.getName()).log(Level.SEVERE, null, e);
-        }
-        return parent;
+    protected String getFxml() {
+        return "/fxml/FXMLAdminSvatky.fxml";
     }
     
     @Test
@@ -51,5 +42,4 @@ public class TestSvatky extends GuiTest {
         click(odebratButton);
         verifyThat("#infoLabel", hasText("Záznam odebrán."));
     }
-    
 }

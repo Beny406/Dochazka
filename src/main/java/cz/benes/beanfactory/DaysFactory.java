@@ -3,7 +3,7 @@ package cz.benes.beanfactory;
 import cz.benes.database.domain.AttendanceRecord;
 import cz.benes.database.domain.RecordType;
 import cz.benes.database.domain.JasperRow;
-import cz.benes.database.dao.HolidaysDAO;
+import cz.benes.database.dao.HolidaysDAOImpl;
 
 import java.sql.SQLException;
 import java.time.Duration;
@@ -58,7 +58,7 @@ public class DaysFactory {
                 }
             }
 
-            for (LocalDate svatek : HolidaysDAO.ALL){
+            for (LocalDate svatek : HolidaysDAOImpl.getInstance().getAll()){
                 if (svatek.getMonthValue() == denMesice.getMonthValue() && svatek.getDayOfMonth() == denMesice.getDayOfMonth()){
                     poznamka = "SVA";
                 }

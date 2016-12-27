@@ -1,22 +1,23 @@
 package cz.benes;
 
-import cz.benes.database.DBConnection;
-import cz.benes.managers.WindowManager;
+import cz.benes.database.dao.DBInitiator;
+import cz.benes.guice.InjectorAware;
+import cz.benes.services.WindowService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+public class Main extends Application implements InjectorAware{
     
     @Override
     public void start(Stage stage) throws Exception {
 //        setUserAgentStylesheet(STYLESHEET_CASPIAN);
-
-        WindowManager.getWindow(getClass(), null, "/fxml/FXMLLogin.fxml", "Login", Boolean.TRUE);
+        getInstance(DBInitiator.class).initiateDB();
+        getInstance(WindowService.class).getWindow(getClass(), null, "/fxml/FXMLLogin.fxml", "Login", Boolean.TRUE);
     }
 
     @Override
     public void stop() throws Exception {
-        DBConnection.close();
+
     }
     
     

@@ -32,6 +32,14 @@ public class Employee implements Serializable{
         this.uvazek = zamestnanec.getUvazek();
         this.admin = zamestnanec.getAdmin();
     }
+
+    public void from(Employee employee){
+        this.jmeno = employee.getJmeno();
+        this.login_id = employee.getLogin_id();
+        this.heslo = employee.getHeslo();
+        this.uvazek = employee.getUvazek();
+        this.admin = employee.getAdmin();
+    }
     
     public String getJmeno() {
         return jmeno;

@@ -1,8 +1,9 @@
-package cz.benes.managers;
+package cz.benes.services;
 
 import cz.benes.beanfactory.DaysFactory;
 import cz.benes.database.dao.HolidaysDAO;
 import cz.benes.database.domain.AttendanceRecord;
+import cz.benes.database.domain.Employee;
 import cz.benes.database.domain.RecordType;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -21,10 +22,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static cz.benes.controllers.FXMLDochazkaController.ZAMESTNANEC;
 
-public class JasperManager {
-    public static void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
+public class JasperServiceImpl extends AbstractService implements JasperService {
+
+    Employee employee = getInstance(Employee.class);
+
+    @Override
+    public void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
+        HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
+
         Duration odpracovano = Duration.ZERO;
         Duration odpracovanoVikend = Duration.ZERO;
         Duration odpracovanoSvatek = Duration.ZERO;
@@ -59,7 +65,7 @@ public class JasperManager {
         }
                 
         // odpracované hodiny o svátku    
-        for (LocalDate svatek : HolidaysDAO.ALL){
+        for (LocalDate svatek : holidaysDAO.getAll()){
             LocalDate svatekTentoRok = LocalDate.of(datum.getYear(), svatek.getMonthValue(), svatek.getDayOfMonth());
             if (svatekTentoRok.getMonthValue() == datum.getMonthValue()
                     && svatekTentoRok.getDayOfWeek() != DayOfWeek.SATURDAY 
@@ -95,18 +101,18 @@ public class JasperManager {
         
         //passing informations through Beans   
         Map<String, Object> params = new HashMap<>();
-        params.put("login_id", ZAMESTNANEC.getLogin_id());
-        params.put("jmeno", ZAMESTNANEC.getJmeno());
+        params.put("login_id", employee.getLogin_id());
+        params.put("jmeno", employee.getJmeno());
         params.put("mesic", datum.format(DateTimeFormatter.ofPattern("LLLL")).toUpperCase());
         params.put("rok", String.valueOf(datum.getYear()));
         params.put("aktualniDatum", LocalDate.now().format(DateTimeFormatter.ofPattern("dd.M.yyyy")));
         params.put("pracDnu", pracDnu);
-        params.put("hodFond", ((double)pracDnu*ZAMESTNANEC.getUvazek()));
+        params.put("hodFond", ((double)pracDnu*employee.getUvazek()));
         params.put("odpracovano", ((double)(odpracovano.toHours())));
         params.put("dnuSvatku", dnuSvatku);
         params.put("odpracovanoSvatek", ((double)(odpracovanoSvatek.toHours())));
         params.put("odpracovanoVikend", ((double)(odpracovanoVikend.toHours())));
-        params.put("uvazek", ZAMESTNANEC.getUvazek());
+        params.put("uvazek", employee.getUvazek());
         params.put("dnuDovolene", dnuDovolene);
         params.put("dnuNemocenske", dnuNemocenske);
         params.put("dnuParagraf", dnuParagraf);

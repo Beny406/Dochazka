@@ -1,4 +1,4 @@
-package cz.benes.controllers.timeoff;
+package cz.benes.controllers.requesttimeoff;
 
 import cz.benes.database.domain.RecordType;
 import javafx.fxml.Initializable;

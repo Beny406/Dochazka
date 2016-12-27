@@ -6,8 +6,7 @@ import cz.benes.database.dao.HolidaysDAO;
 import cz.benes.database.domain.AttendanceRecord;
 import cz.benes.database.domain.Employee;
 import cz.benes.database.domain.RecordType;
-import cz.benes.managers.JasperManager;
-import cz.benes.managers.WindowManager;
+import cz.benes.services.JasperService;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -37,15 +36,21 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 
-public class FXMLDochazkaController implements Initializable {
+public class FXMLDochazkaController extends AbstractController implements Initializable {
     
     static{
         System.out.println("Static");
     }
-    
-    public static final Employee ZAMESTNANEC = FXMLLoginController.zamestnanec;
 
-    private final int dnuSvatku = HolidaysDAO.getPocetSvatkuVmesici(LocalDate.now());
+    private Employee employee = getInstance(Employee.class);
+
+    private AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);
+
+    private HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
+
+    private JasperService jasperService = getInstance(JasperService.class);
+
+    private final int dnuSvatku = holidaysDAO.getPocetSvatkuVmesici(LocalDate.now());
     
     private Duration odpracovano;
 
@@ -83,10 +88,10 @@ public class FXMLDochazkaController implements Initializable {
     
     @FXML
     private Button minMesicButton;
-    
+
     @FXML
     void handlePrichodButton(ActionEvent event) {
-        if (AttendanceDAO.insert(null, null, null, RecordType.IN) != 0) {
+        if (attendanceDAO.insert(null, null, null, RecordType.IN)) {
             prihlaseniLabel.setText("Přihlášení proběhlo úspěšně.");
             odchodButton.setDisable(false);
             prichodButton.setDisable(true);
@@ -97,7 +102,7 @@ public class FXMLDochazkaController implements Initializable {
     
     @FXML
     void handleOdchodButton(ActionEvent event) {
-        if (AttendanceDAO.insert(null, null, null, RecordType.OUT) != 0) {
+        if (attendanceDAO.insert(null, null, null, RecordType.OUT)) {
             prihlaseniLabel.setText("Odhlášení proběhlo úspěšně.");
             odchodButton.setDisable(true);
             prichodButton.setDisable(false);
@@ -106,30 +111,30 @@ public class FXMLDochazkaController implements Initializable {
         }   
 
         //aktualizace odpracované doby při odchodu    
-        odpracovano = AttendanceDAO.spocitejOdpracovano(AttendanceDAO.getThisMonth());
+        odpracovano = attendanceDAO.countDurationWorked(attendanceDAO.getThisMonth());
         odpracovanoLabel.setText(odpracovano.toHours() + " hodin " + odpracovano.toMinutes()%60 + " minut");
 
         //aktualizace doby k odpracování při odchodu
-        Duration zbyvaOdpracovat = Duration.ofMinutes((long) ((pracDnu * ZAMESTNANEC.getUvazek() * 60) - odpracovano.toMinutes()));
+        Duration zbyvaOdpracovat = Duration.ofMinutes((long) ((pracDnu * employee.getUvazek() * 60) - odpracovano.toMinutes()));
         zbyvaLabel.setText(zbyvaOdpracovat.toHours() + " hodin " + zbyvaOdpracovat.toMinutes()%60 + " minut");
    
     }
     
     @FXML
     void handlePrehledButton(ActionEvent event) throws JRException, SQLException, IOException{
-        JasperManager.getReport(AttendanceDAO.getThisMonth(), LocalDate.now(), getClass());
+        jasperService.getReport(attendanceDAO.getThisMonth(), LocalDate.now(), getClass());
     } 
     
     @FXML
     void handleMinMesicButton(ActionEvent event) throws SQLException, JRException {
-        JasperManager.getReport(AttendanceDAO.getLastMonth(), LocalDate.now().minusMonths(1), getClass());
+        jasperService.getReport(attendanceDAO.getLastMonth(), LocalDate.now().minusMonths(1), getClass());
     }
     
     @FXML
     void handleZadostDovolenaButton(ActionEvent event) throws JRException, SQLException{ 
         Map<String, Object> params = new HashMap<>();
-        params.put("login_id", ZAMESTNANEC.getLogin_id());
-        params.put("jmeno", ZAMESTNANEC.getJmeno());
+        params.put("login_id", employee.getLogin_id());
+        params.put("jmeno", employee.getJmeno());
         params.put("mesic", LocalDate.now().format(DateTimeFormatter.ofPattern("LLLL")).toUpperCase());
         params.put("rok", String.valueOf(LocalDate.now().getYear()));
         params.put("aktualniDatum", LocalDate.now().format(DateTimeFormatter.ofPattern("dd.M.yyyy")));
@@ -143,23 +148,23 @@ public class FXMLDochazkaController implements Initializable {
     
     @FXML
     void handleDovolenaButton(ActionEvent event) throws IOException{
-        WindowManager.getWindow(getClass(), event, "/fxml/FXMLDochazkaDovolena.fxml", "Přidat dovolenou", Boolean.TRUE);
+        windowService.getWindow(getClass(), event, "/fxml/FXMLDochazkaDovolena.fxml", "Přidat dovolenou", Boolean.TRUE);
     }
     
     @FXML
     void handleAdminButton(ActionEvent event) throws IOException {
-        WindowManager.getWindow(getClass(), event, "/fxml/FXMLAdmin.fxml", "Administrátor", Boolean.TRUE);
+        windowService.getWindow(getClass(), event, "/fxml/FXMLAdmin.fxml", "Administrátor", Boolean.TRUE);
     }
     
     
     @FXML
     void handleNemocButton(ActionEvent event) throws IOException{
-        WindowManager.getWindow(getClass(), event, "/fxml/FXMLDochazkaNemoc.fxml", "Přidat nemocenskou", Boolean.TRUE);
+        windowService.getWindow(getClass(), event, "/fxml/FXMLDochazkaNemoc.fxml", "Přidat nemocenskou", Boolean.TRUE);
     }
     
     @FXML
     void handleParagrafButton(ActionEvent event) throws IOException{
-        WindowManager.getWindow(getClass(), event, "/fxml/FXMLDochazkaParagraf.fxml", "Přidat resolvedType", Boolean.TRUE);
+        windowService.getWindow(getClass(), event, "/fxml/FXMLDochazkaParagraf.fxml", "Přidat resolvedType", Boolean.TRUE);
     }
     
     @Override
@@ -178,11 +183,11 @@ public class FXMLDochazkaController implements Initializable {
         
         
         // --------------- User specific ----------------------//
-        ButtonAdministrator.setDisable(!ZAMESTNANEC.getAdmin());
+        ButtonAdministrator.setDisable(!employee.getAdmin());
         
         
         //zjištění zda poslední akce byla IN nebo OUT
-        AttendanceRecord poslZaznam = AttendanceDAO.getLastRecord();
+        AttendanceRecord poslZaznam = attendanceDAO.getLastRecord();
         if (poslZaznam != null){
             String datumPoslZaznamu = poslZaznam.getDate();
             String casPoslZaznamu = poslZaznam.getTime();
@@ -195,10 +200,10 @@ public class FXMLDochazkaController implements Initializable {
                 // kontrola, zda se uživatel nezapomněl předchozí den odhlásit a případné přidání odhlášení s hodnotou + 1s
                 // pokud je možná práce přes půlnoc - nastavit jinak!
                 if (!LocalDate.parse(datumPoslZaznamu).equals(LocalDate.now())){
-                    int pridani = AttendanceDAO.insert(null, datumPoslZaznamu, Time.valueOf(LocalTime.parse(casPoslZaznamu).plusSeconds(1)).toString(), RecordType.OUT);
+                    boolean success = attendanceDAO.insert(null, datumPoslZaznamu, Time.valueOf(LocalTime.parse(casPoslZaznamu).plusSeconds(1)).toString(), RecordType.OUT);
                     prichodButton.setDisable(false);
                     odchodButton.setDisable(true);
-                    if (pridani != 0){
+                    if (success){
                         prihlaseniLabel.setText("Naposledy jste se zapomněl/a odhlásit. Kontaktujte admina pro opravu údajů.");
                     }
                 }
@@ -219,19 +224,19 @@ public class FXMLDochazkaController implements Initializable {
             }
         }
         pracDnu -= dnuSvatku;
-        hodFondLabel.setText(ZAMESTNANEC.getUvazek() * pracDnu + " hodin (" + pracDnu + " dnů)");
+        hodFondLabel.setText(employee.getUvazek() * pracDnu + " hodin (" + pracDnu + " dnů)");
 
         // zjištění odpracované doby v aktuálním měsíci při startupu
-        odpracovano = AttendanceDAO.spocitejOdpracovano(AttendanceDAO.getThisMonth());
+        odpracovano = attendanceDAO.countDurationWorked(attendanceDAO.getThisMonth());
         odpracovanoLabel.setText(odpracovano.toHours() + " hodin " + odpracovano.toMinutes()%60 + " minut");
 
         // Zbývá odpracovat on startup
-        Duration zbyvaOpdracovat = Duration.ofMinutes((long) (pracDnu * ZAMESTNANEC.getUvazek() * 60 - odpracovano.toMinutes()));
+        Duration zbyvaOpdracovat = Duration.ofMinutes((long) (pracDnu * employee.getUvazek() * 60 - odpracovano.toMinutes()));
         String odpracovat = zbyvaOpdracovat.toHours() + " hodin " + zbyvaOpdracovat.toMinutes()%60 + " minut";
         zbyvaLabel.setText(odpracovat);
 
         // vypnutí přehledu pro předchozí měsíc
-        if (AttendanceDAO.getLastMonth().isEmpty()){
+        if (attendanceDAO.getLastMonth().isEmpty()){
             minMesicButton.setDisable(true);
         }
             

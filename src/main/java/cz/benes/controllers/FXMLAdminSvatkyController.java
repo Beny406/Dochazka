@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 
-public class FXMLAdminSvatkyController implements Initializable {
+public class FXMLAdminSvatkyController extends AbstractController implements Initializable {
 
    
     @FXML
@@ -38,12 +38,14 @@ public class FXMLAdminSvatkyController implements Initializable {
     
     private LocalDate selected;
 
+    protected HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
+
     @FXML
     void handlePridatButton(ActionEvent event) {
         if (datePicker.getValue() == null){
             infoLabel.setText("Pole je prázdné!");
         } else {
-            if (HolidaysDAO.insert(datePicker.getValue()) == 1){
+            if (holidaysDAO.insert(datePicker.getValue())){
                 svatky.add(datePicker.getValue());
                 infoLabel.setText("Záznam přidán.");             
             } else{
@@ -54,7 +56,7 @@ public class FXMLAdminSvatkyController implements Initializable {
 
     @FXML
     void handleOdebratButton(ActionEvent event) {
-        if (HolidaysDAO.delete(selected) == 1) {
+        if (holidaysDAO.delete(selected)) {
             infoLabel.setText("Záznam odebrán.");
             svatky.remove(svatekListView.getSelectionModel().getSelectedIndex());       
         } else {
@@ -64,7 +66,7 @@ public class FXMLAdminSvatkyController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        HolidaysDAO.ALL.forEach(e -> svatky.add(e));
+        holidaysDAO.getAll().forEach(e -> svatky.add(e));
         svatekListView.setItems(svatky);
         svatekListView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             selected = newValue;

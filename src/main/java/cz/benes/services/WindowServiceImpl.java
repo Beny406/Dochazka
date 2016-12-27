@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.benes.managers;
+package cz.benes.services;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -20,9 +20,10 @@ import java.io.IOException;
  *
  * @author PB
  */
-public class WindowManager {
+public class WindowServiceImpl extends AbstractService implements WindowService {
 
-    public static FXMLLoader getWindow(Class clazz, Event event, String source, String title, Boolean resizable){
+    @Override
+    public FXMLLoader getWindow(Class clazz, Event event, String source, String title, Boolean resizable){
         FXMLLoader fxmlLoader = new FXMLLoader(clazz.getResource(source));
         try {
             Parent root = fxmlLoader.load();
@@ -43,8 +44,8 @@ public class WindowManager {
         return fxmlLoader;
     }
 
-    public static void hideNode(ActionEvent event) {
+    @Override
+    public void hideNode(ActionEvent event) {
         ((Node) (event.getSource())).getScene().getWindow().hide();
     }
-
 }

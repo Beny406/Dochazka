@@ -1,8 +1,8 @@
 package cz.benes.controllers;
 
-import cz.benes.database.dao.EmployeesDAO;
+import com.google.inject.Inject;
+import cz.benes.database.dao.EmployeeDAO;
 import cz.benes.database.domain.Employee;
-import cz.benes.managers.WindowManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-public class FXMLLoginController implements Initializable {
+public class FXMLLoginController extends AbstractController implements Initializable {
 
     @FXML
     private Label loginLabel;
@@ -25,7 +25,10 @@ public class FXMLLoginController implements Initializable {
     @FXML
     private TextField uzHeslo;
 
-    static Employee zamestnanec;
+    @Inject
+    private EmployeeDAO employeeDAO;
+
+    private Employee employee = getInstance(Employee.class);
 
     @FXML
     public void handleLoginButton(ActionEvent event) throws IOException, InterruptedException {
@@ -35,11 +38,11 @@ public class FXMLLoginController implements Initializable {
             zadaneId = "1";
         }
         if (!zadaneId.equals("")) {
-            zamestnanec = EmployeesDAO.getByID(zadaneId);
-            if (zamestnanec != null) {
-                if (zadaneId.equals(zamestnanec.getLogin_id()) && uzHeslo.getText().equals(zamestnanec.getHeslo())) {
-                    WindowManager.getWindow(getClass(), null, "/fxml/FXMLDochazka.fxml", zamestnanec.getJmeno(), Boolean.TRUE);
-                    WindowManager.hideNode(event);
+            employee.from(employeeDAO.getByID(zadaneId));
+            if (employee != null) {
+                if (zadaneId.equals(employee.getLogin_id()) && uzHeslo.getText().equals(employee.getHeslo())) {
+                    windowService.getWindow(getClass(), null, "/fxml/FXMLDochazka.fxml", employee.getJmeno(), Boolean.TRUE);
+                    windowService.hideNode(event);
                 } else {
                     loginLabel.setText("Chybné heslo nebo ID!");
                 }

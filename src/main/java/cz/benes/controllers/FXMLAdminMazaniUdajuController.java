@@ -7,7 +7,6 @@ package cz.benes.controllers;
 
 import cz.benes.database.dao.AttendanceDAO;
 import cz.benes.database.domain.CheckableMonth;
-import cz.benes.managers.WindowManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,11 +26,13 @@ import java.util.ResourceBundle;
  *
  * @author PB
  */
-public class FXMLAdminMazaniUdajuController implements Initializable {
+public class FXMLAdminMazaniUdajuController extends AbstractController implements Initializable {
 
     ObservableList<CheckableMonth> data = FXCollections.observableArrayList();
 
     private CheckListView<CheckableMonth> checkList;
+
+    protected AttendanceDAO attendanceDAO = getInstance(AttendanceDAO.class);
 
     @FXML
     private TextField textFieldRok;
@@ -50,7 +51,7 @@ public class FXMLAdminMazaniUdajuController implements Initializable {
         } else {
             try {
                 ObservableList<CheckableMonth> checkedItems = checkList.getCheckModel().getCheckedItems();
-                int pocetSmazanychRadku = AttendanceDAO.deleteRecords(checkedItems, textFieldRok.getText());
+                int pocetSmazanychRadku = attendanceDAO.deleteRecords(checkedItems, textFieldRok.getText());
                 infoLabel.setText("Smazaných řádků: " + pocetSmazanychRadku);
             } catch (Exception e) {
                 System.out.println(e);
@@ -71,7 +72,7 @@ public class FXMLAdminMazaniUdajuController implements Initializable {
 
     @FXML
     void handleZpetButton(ActionEvent event) {
-        WindowManager.hideNode(event);
+        windowService.hideNode(event);
     }
 
 
