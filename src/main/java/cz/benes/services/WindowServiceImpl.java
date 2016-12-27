@@ -25,6 +25,7 @@ public class WindowServiceImpl extends AbstractService implements WindowService 
     @Override
     public FXMLLoader getWindow(Class clazz, Event event, String source, String title, Boolean resizable){
         FXMLLoader fxmlLoader = new FXMLLoader(clazz.getResource(source));
+        fxmlLoader.setControllerFactory(injector::getInstance);
         try {
             Parent root = fxmlLoader.load();
             Stage stage = new Stage();

@@ -43,7 +43,9 @@ public abstract class CommonGuiTest extends GuiTest implements TestInjectorAware
         setUp();
         Parent parent = null;
         try {
-            parent = FXMLLoader.load(getClass().getResource(getFxml()));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(getFxml()));
+            fxmlLoader.setControllerFactory(injector::getInstance);
+            parent = fxmlLoader.load();
             return parent;
         } catch (Exception e) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);

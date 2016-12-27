@@ -1,6 +1,11 @@
 package cz.benes.services;
 
-import cz.benes.guice.InjectorAware;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
-public class AbstractService implements InjectorAware{
+public class AbstractService {
+
+    @Inject
+    Injector injector;
+
 }

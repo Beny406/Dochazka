@@ -15,7 +15,7 @@ public class AbstractController implements InjectorAware, Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        injector.injectMembers(this);
+
     }
 
 }

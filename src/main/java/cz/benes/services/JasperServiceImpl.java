@@ -1,5 +1,6 @@
 package cz.benes.services;
 
+import com.google.inject.Inject;
 import cz.benes.beanfactory.DaysFactory;
 import cz.benes.database.dao.HolidaysDAO;
 import cz.benes.database.domain.AttendanceRecord;
@@ -25,11 +26,14 @@ import java.util.Map;
 
 public class JasperServiceImpl extends AbstractService implements JasperService {
 
-    Employee employee = getInstance(Employee.class);
+    @Inject
+    Employee employee;
+
+    @Inject
+    HolidaysDAO holidaysDAO;
 
     @Override
     public void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
-        HolidaysDAO holidaysDAO = getInstance(HolidaysDAO.class);
 
         Duration odpracovano = Duration.ZERO;
         Duration odpracovanoVikend = Duration.ZERO;

@@ -6,7 +6,7 @@
 package cz.benes.database.domain;
 
 import cz.benes.database.dao.HolidaysDAO;
-import cz.benes.database.dao.HolidaysDAOImpl;
+import cz.benes.guice.Container;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -24,7 +24,7 @@ public class CheckableDay {
 
     private final BooleanProperty on = new SimpleBooleanProperty();
 
-    private HolidaysDAO holidaysDAO = HolidaysDAOImpl.getInstance();
+    private HolidaysDAO holidaysDAO = Container.getInstance(HolidaysDAO.class);
 
     private LocalDate localDate;
 
