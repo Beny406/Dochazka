@@ -33,59 +33,58 @@ public class JasperServiceImpl extends AbstractService implements JasperService 
     HolidaysDAO holidaysDAO;
 
     @Override
-    public void getReport(List<AttendanceRecord> zaznamyZaMesic, LocalDate datum, Class clazz) throws JRException, SQLException {
+    public void getReport(List<AttendanceRecord> monthRecords, LocalDate localDate, Class clazz) throws JRException, SQLException {
 
-        Duration odpracovano = Duration.ZERO;
-        Duration odpracovanoVikend = Duration.ZERO;
-        Duration odpracovanoSvatek = Duration.ZERO;
-        int dnuSvatku, pracDnu, dnuDovolene, dnuNemocenske, dnuParagraf;
-        dnuSvatku = pracDnu = dnuDovolene = dnuNemocenske = dnuParagraf = 0;
+        Duration workedDuration = Duration.ZERO;
+        Duration workedOnWeekendDuration = Duration.ZERO;
+        Duration workedOnHolidayDuration = Duration.ZERO;
+        int holidaysCount, workingDays, daysoffCount, sickdaysCount, paragraphdaysCount;
+        holidaysCount = workingDays = daysoffCount = sickdaysCount = paragraphdaysCount = 0;
         
         // čerstvá data o přichodu a odchodu při otvírání přehledu
         
         // vstupní data
-        LocalTime prichod = null;
+        LocalTime arrival = null;
          
-        for (AttendanceRecord zaznam : zaznamyZaMesic){
-            switch (RecordType.valueOf(zaznam.getType())) {
+        for (AttendanceRecord record : monthRecords){
+            switch (RecordType.valueOf(record.getType())) {
                 case IN:
-                    prichod = LocalTime.parse(zaznam.getTime());
+                    arrival = LocalTime.parse(record.getTime());
                     break;
                 case OUT:
-                    LocalTime odchod = LocalTime.parse(zaznam.getTime());
-                    if (isRecordWeekend(zaznam)) odpracovanoVikend = odpracovano.plus(Duration.between(prichod, odchod));
-                    else odpracovano = odpracovano.plus(Duration.between(prichod, odchod));
+                    LocalTime departure = LocalTime.parse(record.getTime());
+                    if (isRecordWeekend(record)) workedOnWeekendDuration = workedDuration.plus(Duration.between(arrival, departure));
+                    else workedDuration = workedDuration.plus(Duration.between(arrival, departure));
                     break;
                 case DOV:
-                    dnuDovolene++;
+                    daysoffCount++;
                     break;
                 case NEM:
-                    dnuNemocenske++;
+                    sickdaysCount++;
                     break;
                 case PAR:
-                    dnuParagraf++;
+                    paragraphdaysCount++;
                     break;       
             }
         }
                 
         // odpracované hodiny o svátku    
-        for (LocalDate svatek : holidaysDAO.getAll()){
-            LocalDate svatekTentoRok = LocalDate.of(datum.getYear(), svatek.getMonthValue(), svatek.getDayOfMonth());
-            if (svatekTentoRok.getMonthValue() == datum.getMonthValue()
-                    && svatekTentoRok.getDayOfWeek() != DayOfWeek.SATURDAY 
-                    && svatekTentoRok.getDayOfWeek() != DayOfWeek.SUNDAY){
-                dnuSvatku++;
+        for (LocalDate holiday : holidaysDAO.getAll()){
+            LocalDate holidayThisYear = holiday.withYear(localDate.getYear());
+
+            if (holidayThisYear.getMonthValue() == localDate.getMonthValue() && isWorkingDay(holidayThisYear.getDayOfWeek())){
+                holidaysCount++;
             }            
            
-            for (AttendanceRecord zaznam : zaznamyZaMesic){
-                if (svatekTentoRok.equals(LocalDate.parse(zaznam.getDate()))){
-                    switch (RecordType.valueOf(zaznam.getType())) {
+            for (AttendanceRecord record : monthRecords){
+                if (holidayThisYear.equals(LocalDate.parse(record.getDate()))){
+                    switch (RecordType.valueOf(record.getType())) {
                         case IN:
-                            prichod = LocalTime.parse(zaznam.getTime());
+                            arrival = LocalTime.parse(record.getTime());
                             break;
                         case OUT:
-                            LocalTime odchod = LocalTime.parse(zaznam.getTime());
-                            odpracovanoSvatek = odpracovano.plus(Duration.between(prichod, odchod));
+                            LocalTime odchod = LocalTime.parse(record.getTime());
+                            workedOnHolidayDuration = workedDuration.plus(Duration.between(arrival, odchod));
                             break;
                     }
                 }
@@ -93,48 +92,48 @@ public class JasperServiceImpl extends AbstractService implements JasperService 
         }
                 
         //hodinový fond podle úvazku - svátky
-        int pocetDniMesice = datum.getMonth().length(LocalDate.now().isLeapYear());
-        for (int i = 1; i <= pocetDniMesice ; i++){
-            DayOfWeek denMesice = datum.withDayOfMonth(i).getDayOfWeek();
-            if (isWorkingDay(denMesice)){
-                pracDnu++;
+        int totalDaysThisMonth = localDate.getMonth().length(LocalDate.now().isLeapYear());
+        for (int i = 1; i <= totalDaysThisMonth ; i++){
+            DayOfWeek dayOfWeek = localDate.withDayOfMonth(i).getDayOfWeek();
+            if (isWorkingDay(dayOfWeek)){
+                workingDays++;
             }
         }
-        pracDnu -= dnuSvatku;
+        workingDays -= holidaysCount;
         
         
         //passing informations through Beans   
         Map<String, Object> params = new HashMap<>();
         params.put("login_id", employee.getLogin_id());
         params.put("jmeno", employee.getJmeno());
-        params.put("mesic", datum.format(DateTimeFormatter.ofPattern("LLLL")).toUpperCase());
-        params.put("rok", String.valueOf(datum.getYear()));
+        params.put("mesic", localDate.format(DateTimeFormatter.ofPattern("LLLL")).toUpperCase());
+        params.put("rok", String.valueOf(localDate.getYear()));
         params.put("aktualniDatum", LocalDate.now().format(DateTimeFormatter.ofPattern("dd.M.yyyy")));
-        params.put("pracDnu", pracDnu);
-        params.put("hodFond", ((double)pracDnu*employee.getUvazek()));
-        params.put("odpracovano", ((double)(odpracovano.toHours())));
-        params.put("dnuSvatku", dnuSvatku);
-        params.put("odpracovanoSvatek", ((double)(odpracovanoSvatek.toHours())));
-        params.put("odpracovanoVikend", ((double)(odpracovanoVikend.toHours())));
+        params.put("pracDnu", workingDays);
+        params.put("hodFond", ((double)workingDays*employee.getUvazek()));
+        params.put("odpracovano", ((double)(workedDuration.toHours())));
+        params.put("dnuSvatku", holidaysCount);
+        params.put("odpracovanoSvatek", ((double)(workedOnHolidayDuration.toHours())));
+        params.put("odpracovanoVikend", ((double)(workedOnWeekendDuration.toHours())));
         params.put("uvazek", employee.getUvazek());
-        params.put("dnuDovolene", dnuDovolene);
-        params.put("dnuNemocenske", dnuNemocenske);
-        params.put("dnuParagraf", dnuParagraf);
+        params.put("dnuDovolene", daysoffCount);
+        params.put("dnuNemocenske", sickdaysCount);
+        params.put("dnuParagraf", paragraphdaysCount);
         // změna čárek na tečku při zaokrouhlování parametrů
         params.put(JRParameter.REPORT_LOCALE, new Locale("en", "US"));
         
         JasperDesign jasperDesign = JRXmlLoader.load(clazz.getResourceAsStream("/reports/prehled.jrxml")); 
         JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
-        JasperPrint  jasperPrint  = JasperFillManager.fillReport(jasperReport, params, new JRBeanCollectionDataSource(DaysFactory.generateDays(zaznamyZaMesic, datum)));
+        JasperPrint  jasperPrint  = JasperFillManager.fillReport(jasperReport, params, new JRBeanCollectionDataSource(DaysFactory.generateDays(monthRecords, localDate)));
         JasperViewer.viewReport(jasperPrint, false);
     }
 
-    private static boolean isWorkingDay(DayOfWeek denMesice) {
-        return denMesice != DayOfWeek.SATURDAY && denMesice != DayOfWeek.SUNDAY;
+
+    private boolean isRecordWeekend(AttendanceRecord zaznam) {
+        return !isWorkingDay(LocalDate.parse(zaznam.getDate()).getDayOfWeek());
     }
 
-    private static boolean isRecordWeekend(AttendanceRecord zaznam) {
-        return (LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SATURDAY
-                || (LocalDate.parse(zaznam.getDate())).getDayOfWeek() == DayOfWeek.SUNDAY;
+    private boolean isWorkingDay(DayOfWeek denMesice) {
+        return denMesice != DayOfWeek.SATURDAY && denMesice != DayOfWeek.SUNDAY;
     }
 }
